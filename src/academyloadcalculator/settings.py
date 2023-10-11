@@ -70,20 +70,12 @@ WSGI_APPLICATION = "academyloadcalculator.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    # "default": {
-    #     "ENGINE": "django.db.backends.postgresql",
-    #     "NAME": "railway",
-    #     "USER": "postgres",
-    #     "PASSWORD": "Tax5WhBFN7HiWP6yqABm",
-    #     "HOST": "containers-us-west-34.railway.app",
-    #     "PORT": "6399",
-    # }
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "academyloadcalculator",
         "USER": "postgres",
         "PASSWORD": "1234",
-        "HOST": "localhost",
+        "HOST": "academyloadcalculator_db",
         "PORT": "5432",
     }
 }
