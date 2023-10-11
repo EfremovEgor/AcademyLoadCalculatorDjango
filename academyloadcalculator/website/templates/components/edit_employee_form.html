@@ -1,0 +1,175 @@
+<!-- prettier-ignore -->
+<div  id="edit_employee_content" csrf={{ csrf_token }} class="modal-content">
+  {% load bootstrap5 %} {% bootstrap_css %} {%bootstrap_javascript %}  {% load static %}
+  <script type="text/javascript" src="{% static '/js/overview.js' %}"></script>
+
+  <div class="modal-header">
+    <h5 class="modal-title">Изменение сотрудника</h5>
+    <button type="button" id="delete_employee_button" class="btn btn-danger delete_employee" data-bs-dismiss="modal">
+        Удалить сотрудника
+      </button>
+  </div>
+  <div class="modal-body">
+
+    <div class="mb-3">
+      <label for="full_name" class="form-label"
+        >ФИО<span class="asteriskField">*</span></label
+      >
+      <input type="text" class="form-control" id="full_name" />
+    </div>
+
+    <div class="mb-3">
+      <label for="birth_date" class="form-label"
+        >Дата рождения<span class="asteriskField">*</span></label
+      >
+      <input type="date" class="form-control" id="birth_date" />
+    </div>
+
+    <div class="mb-3">
+      <label for="phone_number" class="form-label"
+        >Телефон<span class="asteriskField">*</span></label
+      >
+      <input type="tel" class="form-control" id="phone_number" />
+    </div>
+
+    <div class="mb-3">
+      <label for="degree" class="form-label"
+        >Ученая степень<span class="asteriskField">*</span></label
+      >
+      <input type="text" class="form-control" id="degree" />
+    </div>
+
+    <div class="mb-3">
+      <label for="academic_title" class="form-label"
+        >Ученое звание<span class="asteriskField">*</span></label
+      >
+      <input type="text" class="form-control" id="academic_title" />
+    </div>
+
+    <div class="mb-3">
+      <label for="position" class="form-label requiredField">
+        Должность ППС<span class="asteriskField">*</span>
+      </label>
+      <select
+        id="position"
+        name="position"
+        class="form-select form-select mb-3"
+      >
+        <option disabled selected></option>
+        {% for position in positions %}
+        <option value="{{position}}">{{position}}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-5">
+      <label for="rate" class="form-label"
+        >Ставка<span class="asteriskField">*</span></label
+      >
+      <input type="number" class="form-control" id="rate" />
+    </div>
+    <div class="mb-3 d-md-flex justify-content-md-center mx-auto">
+      <button type="button" class="btn btn-primary" id="add_subject_form">
+        Добавить предмет
+      </button>
+    </div>
+    <div class="mb-5" id="subject_forms"></div>
+    <div class="modal-footer">
+      <button type="button"  class="close_employee_form btn btn-danger" data-bs-dismiss="modal">
+        Отмена
+      </button>
+      <button
+        onclick="save_edit_employee_form_button_on_click(this)"
+        type="submit"
+        class="btn btn-success save_edit_employee_form"
+      >
+        Изменить
+      </button>
+    </div>
+    <div id="base_subject_form" class="mb-3 d-none">
+      <hr />
+      <div class="row align-items-end mb-3">
+        <div class="col">
+          <label for="id_subject_name" class="form-label requiredField">
+            Название предмета<span class="asteriskField">*</span>
+          </label>
+          <select
+            id="id_subject_name"
+            name="subject_name"
+            class="form-select form-select subject_name_select"
+          >
+            <option disabled selected></option>
+            {% for select in subject_names %}
+            <option value="{{select}}">{{select}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col">
+          <label for="id_subject_study_level" class="form-label requiredField">
+            Уровень обучения<span class="asteriskField">*</span>
+          </label>
+          <select
+            id="id_subject_study_level"
+            name="subject_study_level"
+            class="form-select form-select"
+            disabled
+          >
+            <option disabled selected></option>
+          </select>
+        </div>
+        <div class="col">
+          <button
+            type="button"
+            class="btn btn-primary add_subject_holding_type"
+            id="add_subject_holding_type"
+          >
+            Добавить тип занятий
+          </button>
+        </div>
+        <div class="col">
+          <button type="button" class="btn btn-danger delete_subject">
+            Удалить предмет
+          </button>
+        </div>
+      </div>
+      <div class="row align-items-start subject_main_part mb-3">
+        <div class="col-md-auto">
+          <label for="id_holding_type" class="form-labelrequiredField">
+            Тип занятия<span class="asteriskField">*</span>
+          </label>
+          <select
+            id="id_holding_type"
+            name="holding_type"
+            class="form-select holding_type_select form-select"
+            disabled
+          >
+            <option disabled selected></option>
+          </select>
+        </div>
+        <div class="col-md-auto subject_ciphers_and_directions_container">
+          <button
+            type="button"
+            class="btn btn-primary add_subject_cipher_and_direction"
+            id="add_subject_cipher_and_direction"
+          >
+            Добавить направление
+          </button>
+        </div>
+        <div class="col-md-auto">
+          <button
+            type="button"
+            class="btn btn-primary add_subject_group"
+            id="add_subject_group"
+          >
+            Добавить группу
+          </button>
+        </div>
+        <div class="col-md-auto">
+          <button type="button" class="btn btn-danger delete_select">
+            Удалить тип занятия
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  {% load crispy_forms_tags %} {% include "head.html" %}
+  <body>
+    {% include "header.html" %}
+    <div class="container">
+      <h1 class="mb-5">Данные</h1>
+      <form action="/data" enctype="multipart/form-data" method="post">
+        {% csrf_token %} {{ form|crispy }}
+        <input
+          class="btn btn-success"
+          enctype="multipart/form-data"
+          name="subjects"
+          type="submit"
+          value="Подтвердить"
+        />
+      </form>
+    </div>
+  </body>
+</html>

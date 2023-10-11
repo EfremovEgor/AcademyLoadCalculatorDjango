@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  {% include "head.html" %} {% load static %}
+  <body>
+    <script
+      type="text/javascript"
+      src="{% static '/js/overview.js' %}"
+    ></script>
+
+    {% include "header.html" %}
+    <div class="container">
+      <h1>Профессорско-преподавательский состав</h1>
+      <div class="table-responsive mt-5">
+        <table class="table table-striped table-hover table-sm">
+          <thead>
+            <tr class="align-top">
+              <th scope="col">Изменить</th>
+              <th scope="col">ФИО</th>
+              <th scope="col">Дата рождения</th>
+              <th scope="col">Телефон</th>
+              <th scope="col">Ученая степень</th>
+              <th scope="col">Ученое звание</th>
+              <th scope="col">Должность ППС</th>
+              <th scope="col">Ставка ППС</th>
+              <th scope="col">Нагрузка по ставке в год, час</th>
+              <th scope="col">Оклад ППС по ставке в месяц, руб.</th>
+              <th scope="col">
+                Факт нагрузка 1,3,5,7 сем. по бакалавриату, час
+              </th>
+              <th scope="col">
+                Факт нагрузка 2,4,6,8 сем. по бакалавриату, час
+              </th>
+              <th scope="col">Факт нагрузка 1, 3 сем. по магистратуре, час</th>
+              <th scope="col">Факт нагрузка 2 сем. по магистратуре, час</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in employees %}
+            <tr id="{{row.id}}">
+              <td>
+                <button
+                  onclick="set_modal_id(this,{{row.id}})"
+                  hx-get="{% url 'edit_employee' %}"
+                  hx-target="#edit_employee_dialog"
+                  class="btn btn-outline-dark"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-pencil-square"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"
+                    />
+                    <path
+                      fill-rule="evenodd"
+                      d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"
+                    />
+                  </svg>
+                </button>
+              </td>
+              <td>{{row.full_name}}</td>
+              <td>{{row.birth_date}}</td>
+              <td>{{row.phone_number}}</td>
+              <td>{{row.degree}}</td>
+              <td>{{row.academic_title}}</td>
+              <td>{{row.position}}</td>
+              <td>{{row.rate}}</td>
+              <td>{{row.yearly_load}}</td>
+              <td>{{row.salary}}</td>
+              <td>{{row.bachelor_odd}}</td>
+              <td>{{row.bachelor_even}}</td>
+              <td>{{row.magistrate_odd}}</td>
+              <td>{{row.magistrate_even}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <button
+        hx-get="{% url 'add_employee' %}"
+        class="btn btn-primary"
+        hx-target="#dialog"
+      >
+        Добавить
+      </button>
+    </div>
+    <div id="modal" class="modal fade">
+      <div id="dialog" class="modal-dialog modal-xl" hx-target="this"></div>
+    </div>
+
+    <div id="edit_employee_modal" class="modal fade">
+      <div
+        id="edit_employee_dialog"
+        class="modal-dialog modal-xl"
+        hx-target="this"
+      ></div>
+    </div>
+    <script>
+      function set_modal_id(element, id) {
+        $("#edit_employee_modal").attr("person_id", id);
+      }
+      const modal = new bootstrap.Modal(document.getElementById("modal"));
+      const edit_employee_modal = new bootstrap.Modal(
+        document.getElementById("edit_employee_modal")
+      );
+      htmx.on("htmx:afterSwap", (e) => {
+        if (e.detail.target.id == "dialog") {
+          modal.show();
+        }
+        if (e.detail.target.id == "edit_employee_dialog") {
+          edit_employee_modal.show();
+        }
+      });
+    </script>
+  </body>
+</html>

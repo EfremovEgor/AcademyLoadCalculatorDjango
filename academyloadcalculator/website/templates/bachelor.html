@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  {% include "head.html" %}
+  <body>
+    {% include "header.html" %}
+    <div class="container">
+      <h1 class="mb-5">Бакалавриат</h1>
+
+      <div class="table-responsive mt-5">
+        {% for subject_type,subject_name_data in subjects.items %}
+        <h3>{{subject_type}}</h3>
+        <table class="table table-hover table-sm">
+          <tbody>
+            {% for subject_name,group_data in subject_name_data.items%}
+            <tr>
+              <td class="table-dark" colspan="2" style="text-align: center">
+                <h2>{{subject_name}}</h2>
+              </td>
+            </tr>
+            {% for subject_group,value in group_data.items %}
+            <tr class="table-dark">
+              <td style="text-align: center">{{subject_group}}</td>
+              <td style="text-align: center">Кредит: {{value.credit}}</td>
+            </tr>
+            {% for key,value1 in value.items%} {% if key != "credit" %}
+            <tr>
+              <td>{{key}}</td>
+              {% if value1.teacher != None %}
+              <td style="color: #198754">Преподаватель: {{value1.teacher}}</td>
+              {% else %}
+              <td style="color: #dc3545">Преподаватель отсутствует</td>
+              {% endif %}
+            </tr>
+            {% endif %} {% endfor %} {% endfor %} {% endfor %}
+          </tbody>
+        </table>
+        <hr />
+        {% endfor %}
+      </div>
+    </div>
+  </body>
+</html>
