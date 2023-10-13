@@ -1,7 +1,9 @@
 from .models import Person
 
 
-def calculate_employee_load(person: Person) -> tuple[float, float, float, float]:
+def calculate_employee_load(
+    person: Person,
+) -> tuple[float, float, float, float]:
     actual_load_masters = list([0, 0])
     actual_load_bachelor = list([0, 0])
     to_calculate = list()

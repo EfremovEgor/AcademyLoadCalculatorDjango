@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -75,7 +76,7 @@ DATABASES = {
         "NAME": "academyloadcalculator",
         "USER": "postgres",
         "PASSWORD": "1234",
-        "HOST": "academyloadcalculator_db",
+        "HOST": "localhost",
         "PORT": "5432",
     }
 }

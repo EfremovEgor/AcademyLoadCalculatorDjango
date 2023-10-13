@@ -39,7 +39,9 @@ class Subject(models.Model):
     direction = models.CharField(
         max_length=255,
     )
-    groups = models.ForeignKey("Group", on_delete=models.CASCADE, null=True, blank=True)
+    groups = models.ForeignKey(
+        "Group", on_delete=models.CASCADE, null=True, blank=True
+    )
 
     def __str__(self):
         return f"{self.name}, {self.study_level}, {self.course} Курс, {self.semester} Семестр, {self.holding_type}, {self.groups.name if self.groups.name is not None else 'Без группы'} "

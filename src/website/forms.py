@@ -1,6 +1,7 @@
 from django import forms
-from .models import Position, Subject
 from dynamic_forms import DynamicField, DynamicFormMixin
+
+from .models import Position, Subject
 
 
 class DataFileForm(forms.Form):

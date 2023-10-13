@@ -4,21 +4,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('website', '0001_initial'),
+        ("website", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='subject',
-            name='cipher',
+            model_name="subject",
+            name="cipher",
             field=models.CharField(default=1, max_length=100),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='subject',
-            name='direction',
+            model_name="subject",
+            name="direction",
             field=models.CharField(default=1, max_length=100),
             preserve_default=False,
         ),

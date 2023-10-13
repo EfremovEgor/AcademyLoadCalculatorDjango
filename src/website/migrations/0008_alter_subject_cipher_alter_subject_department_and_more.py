@@ -4,45 +4,69 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('website', '0007_alter_subject_groups'),
+        ("website", "0007_alter_subject_groups"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subject',
-            name='cipher',
+            model_name="subject",
+            name="cipher",
             field=models.CharField(max_length=255),
         ),
         migrations.AlterField(
-            model_name='subject',
-            name='department',
+            model_name="subject",
+            name="department",
             field=models.CharField(max_length=255),
         ),
         migrations.AlterField(
-            model_name='subject',
-            name='direction',
+            model_name="subject",
+            name="direction",
             field=models.CharField(max_length=255),
         ),
         migrations.AlterField(
-            model_name='subject',
-            name='group_name',
+            model_name="subject",
+            name="group_name",
             field=models.CharField(max_length=255),
         ),
         migrations.AlterField(
-            model_name='subject',
-            name='holding_type',
-            field=models.CharField(choices=[('Семинар', 'Семинар'), ('Лабораторная работа', 'Лабораторная работа'), ('Лекция', 'Лекция')], max_length=255),
+            model_name="subject",
+            name="holding_type",
+            field=models.CharField(
+                choices=[
+                    ("Семинар", "Семинар"),
+                    ("Лабораторная работа", "Лабораторная работа"),
+                    ("Лекция", "Лекция"),
+                ],
+                max_length=255,
+            ),
         ),
         migrations.AlterField(
-            model_name='subject',
-            name='name',
+            model_name="subject",
+            name="name",
             field=models.CharField(max_length=255),
         ),
         migrations.AlterField(
-            model_name='subject',
-            name='subject_type',
-            field=models.CharField(choices=[('Курсовые работы / проекты', 'Курсовые работы / проекты'), ('Базовая компонента', 'Базовая компонента'), ('Вариативная компонента', 'Вариативная компонента'), ('Часть, формируемая участниками образовательных отношений', 'Часть, формируемая участниками образовательных отношений'), ('Практики и НИР', 'Практики и НИР'), ('Государственная итоговая аттестация', 'Государственная итоговая аттестация'), ('Факультатив', 'Факультатив'), ('Дисциплины по выбору', 'Дисциплины по выбору')], max_length=255),
+            model_name="subject",
+            name="subject_type",
+            field=models.CharField(
+                choices=[
+                    ("Курсовые работы / проекты", "Курсовые работы / проекты"),
+                    ("Базовая компонента", "Базовая компонента"),
+                    ("Вариативная компонента", "Вариативная компонента"),
+                    (
+                        "Часть, формируемая участниками образовательных отношений",
+                        "Часть, формируемая участниками образовательных отношений",
+                    ),
+                    ("Практики и НИР", "Практики и НИР"),
+                    (
+                        "Государственная итоговая аттестация",
+                        "Государственная итоговая аттестация",
+                    ),
+                    ("Факультатив", "Факультатив"),
+                    ("Дисциплины по выбору", "Дисциплины по выбору"),
+                ],
+                max_length=255,
+            ),
         ),
     ]

@@ -1,11 +1,12 @@
-from django.forms.models import model_to_dict
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
-from .forms import DataFileForm
-from .utils import calculate_employee_load
-from .models import Subject, Group, Position, Person
 import json
-from django.http import QueryDict
+
+from django.forms.models import model_to_dict
+from django.http import HttpResponse, JsonResponse, QueryDict
+from django.shortcuts import render
+
+from .forms import DataFileForm
+from .models import Group, Person, Position, Subject
+from .utils import calculate_employee_load
 
 
 def overview(request):
@@ -53,7 +54,9 @@ def data(request):
                         subject = Subject(**item, groups=group)
                         to_create.append(subject)
             else:
-                to_create = [model_to_override[model_name](**item) for item in data]
+                to_create = [
+                    model_to_override[model_name](**item) for item in data
+                ]
             model_to_override[model_name].objects.bulk_create(to_create)
 
     else:
@@ -69,7 +72,9 @@ def save_person(request):
         phone_number=data.get("phone_number"),
         degree=data.get("degree"),
         academic_title=data.get("academic_title"),
-        position=Position.objects.filter(position_name=data.get("position")).first(),
+        position=Position.objects.filter(
+            position_name=data.get("position")
+        ).first(),
         rate=float(data.get("rate")),
     )
     person.save()
@@ -97,7 +102,9 @@ def get_positions(request):
         {
             "message": {"status": "ok"},
             "data": {
-                "positions": [item.position_name for item in Position.objects.all()],
+                "positions": [
+                    item.position_name for item in Position.objects.all()
+                ],
             },
         },
         content_type="application/json",
@@ -109,7 +116,9 @@ def add_employee(request):
         request,
         "components/add_employee_form.html",
         {
-            "positions": [item.position_name for item in Position.objects.all()],
+            "positions": [
+                item.position_name for item in Position.objects.all()
+            ],
             "subject_names": sorted(
                 list(
                     Subject.objects.values("name")
@@ -126,7 +135,9 @@ def edit_employee(request):
         request,
         "components/edit_employee_form.html",
         {
-            "positions": [item.position_name for item in Position.objects.all()],
+            "positions": [
+                item.position_name for item in Position.objects.all()
+            ],
             "subject_names": sorted(
                 list(
                     Subject.objects.values("name")
@@ -147,7 +158,10 @@ def get_employee(request):
     data["position"] = person.position.position_name
     data["subjects"] = dict()
     for subject in person.subjects.all():
-        if data["subjects"].get(f"{subject.name} | {subject.study_level}") is None:
+        if (
+            data["subjects"].get(f"{subject.name} | {subject.study_level}")
+            is None
+        ):
             data["subjects"][f"{subject.name} | {subject.study_level}"] = {}
 
         if (
@@ -174,7 +188,9 @@ def get_employee(request):
 
         data["subjects"][f"{subject.name} | {subject.study_level}"][
             subject.holding_type
-        ]["groups"].append(f"{subject.groups.name} | {str(subject.semester)} Семестр")
+        ]["groups"].append(
+            f"{subject.groups.name} | {str(subject.semester)} Семестр"
+        )
     print(data)
     return JsonResponse(
         {
@@ -226,7 +242,9 @@ def delete_person(request):
 
 def get_subject_study_level_by_name(request):
     if request.method != "GET":
-        return HttpResponse({"message": f"Method Not Allowed {request.method}"})
+        return HttpResponse(
+            {"message": f"Method Not Allowed {request.method}"}
+        )
 
     response_data = sorted(
         list(
@@ -248,7 +266,9 @@ def get_subject_study_level_by_name(request):
 
 def get_subject_holding_type_by_study_level_name(request):
     if request.method != "GET":
-        return HttpResponse({"message": f"Method Not Allowed {request.method}"})
+        return HttpResponse(
+            {"message": f"Method Not Allowed {request.method}"}
+        )
     response_data = (
         sorted(
             list(
@@ -274,9 +294,12 @@ def get_subject_holding_type_by_study_level_name(request):
 
 def get_subject_groups_by_name_level_holding_cipher_direction(request):
     if request.method != "GET":
-        return HttpResponse({"message": f"Method Not Allowed {request.method}"})
+        return HttpResponse(
+            {"message": f"Method Not Allowed {request.method}"}
+        )
     combined = [
-        item.split(", ") for item in request.GET.getlist("ciphers_and_directions[]")
+        item.split(", ")
+        for item in request.GET.getlist("ciphers_and_directions[]")
     ]
     response_data = set()
     for cipher, direction in combined:
@@ -309,7 +332,9 @@ def get_subject_groups_by_name_level_holding_cipher_direction(request):
 
 def get_subject_ciphers_and_directions_by_name_level_holding(request):
     if request.method != "GET":
-        return HttpResponse({"message": f"Method Not Allowed {request.method}"})
+        return HttpResponse(
+            {"message": f"Method Not Allowed {request.method}"}
+        )
 
     response_data = (
         sorted(
@@ -339,21 +364,29 @@ def get_subject_ciphers_and_directions_by_name_level_holding(request):
 def bachelor(request):
     subjects = {}
     for subject in (
-        Subject.objects.filter(study_level="Бакалавриат").order_by("subject_type").all()
+        Subject.objects.filter(study_level="Бакалавриат")
+        .order_by("subject_type")
+        .all()
     ):
-        subjects[subject.subject_type] = subjects.get(subject.subject_type, dict())
+        subjects[subject.subject_type] = subjects.get(
+            subject.subject_type, dict()
+        )
         subjects[subject.subject_type][subject.name] = subjects[
             subject.subject_type
         ].get(subject.name, dict())
-        subjects[subject.subject_type][subject.name][subject.groups.name] = subjects[
-            subject.subject_type
-        ][subject.name].get(subject.groups.name, dict())
+        subjects[subject.subject_type][subject.name][
+            subject.groups.name
+        ] = subjects[subject.subject_type][subject.name].get(
+            subject.groups.name, dict()
+        )
         subjects[subject.subject_type][subject.name][subject.groups.name][
             "credit"
         ] = subject.credit
         subjects[subject.subject_type][subject.name][subject.groups.name][
             subject.holding_type
-        ] = subjects[subject.subject_type][subject.name][subject.groups.name].get(
+        ] = subjects[subject.subject_type][subject.name][
+            subject.groups.name
+        ].get(
             subject.holding_type, dict()
         )
         teacher = Person.objects.filter(subjects__in=[subject.id]).first()
@@ -371,19 +404,25 @@ def magistrate(request):
         .order_by("subject_type")
         .all()
     ):
-        subjects[subject.subject_type] = subjects.get(subject.subject_type, dict())
+        subjects[subject.subject_type] = subjects.get(
+            subject.subject_type, dict()
+        )
         subjects[subject.subject_type][subject.name] = subjects[
             subject.subject_type
         ].get(subject.name, dict())
-        subjects[subject.subject_type][subject.name][subject.groups.name] = subjects[
-            subject.subject_type
-        ][subject.name].get(subject.groups.name, dict())
+        subjects[subject.subject_type][subject.name][
+            subject.groups.name
+        ] = subjects[subject.subject_type][subject.name].get(
+            subject.groups.name, dict()
+        )
         subjects[subject.subject_type][subject.name][subject.groups.name][
             "credit"
         ] = subject.credit
         subjects[subject.subject_type][subject.name][subject.groups.name][
             subject.holding_type
-        ] = subjects[subject.subject_type][subject.name][subject.groups.name].get(
+        ] = subjects[subject.subject_type][subject.name][
+            subject.groups.name
+        ].get(
             subject.holding_type, dict()
         )
         teacher = Person.objects.filter(subjects__in=[subject.id]).first()
