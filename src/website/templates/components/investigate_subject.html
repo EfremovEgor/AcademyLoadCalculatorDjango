@@ -1,0 +1,38 @@
+<!-- prettier-ignore -->
+<div  id="investigate_subject_content" csrf={{ csrf_token }} class="modal-content">
+    {% load bootstrap5 %} {% bootstrap_css %} {%bootstrap_javascript %}  {% load static %}
+  
+    <div class="modal-header">
+      <h5 class="modal-title">{{naming}}</h5>
+    </div>
+    <div class="modal-body">
+      {% for semester,data  in info.items  %}
+      <h5>{{semester}} Семестр</h5>
+      <table class="table table-hover table-sm table-borderless">
+        {% for type,teacher  in data.items  %}
+        <tr>
+          <td>
+            {{type}}
+          </td>
+          {% if teacher %}
+          <td style="color:green">
+            {{teacher}}
+          </td>
+          {% else %}
+          <td style="color:red">
+            Преподаватель отсутствует
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </table>
+      {% endfor %}
+      <div class="modal-footer">
+        <button type="button"  class="btn btn-danger" data-bs-dismiss="modal">
+          Закрыть
+        </button>
+       
+      </div>
+    
+    </div>
+  </div>

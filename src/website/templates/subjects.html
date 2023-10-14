@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  {% include "head.html" %}
+  <body>
+    {% include "header.html" %}
+    <div class="container">
+      <h1 class="mb-5">{{study_level}}</h1>
+
+      <div class="table-responsive mt-5">
+        {% for subject_type,subject_name_data in subjects.items %}
+        <h2>{{subject_type}}</h2>
+        <table class="table table-hover table-sm">
+          <tbody>
+            {% for subject_name,group_data in subject_name_data.items%}
+            <tr>
+              <td class="table-dark" colspan="2" style="text-align: center">
+                <h3>{{subject_name}}</h3>
+              </td>
+            </tr>
+            {% for group in group_data%}
+            <tr>
+              <td
+                hx-get="/investigate_subject/{{subject_name}}/{{group}}"
+                hx-target="#investigate_subject_dialog"
+                colspan="2"
+                onclick="set_modal_id(this,'{{subject_name}}','{{group}}')"
+                style="cursor: pointer"
+              >
+                <h4>{{group}}</h4>
+              </td>
+            </tr>
+            {%endfor%} {% endfor %}
+          </tbody>
+        </table>
+        <hr />
+        {% endfor %}
+      </div>
+    </div>
+    <div id="investigate_subject_modal" class="modal fade">
+      <div
+        id="investigate_subject_dialog"
+        class="modal-dialog modal-lg"
+        hx-target="this"
+      ></div>
+    </div>
+  </body>
+
+  <script>
+    function set_modal_id(element, subject_name, group) {
+      $("#investigate_subject_modal").attr("subject_name", subject_name);
+      $("#investigate_subject_modal").attr("group", group);
+    }
+    const edit_employee_modal = new bootstrap.Modal(
+      document.getElementById("investigate_subject_modal")
+    );
+    htmx.on("htmx:afterSwap", (e) => {
+      if (e.detail.target.id == "investigate_subject_dialog") {
+        edit_employee_modal.show();
+      }
+    });
+  </script>
+</html>

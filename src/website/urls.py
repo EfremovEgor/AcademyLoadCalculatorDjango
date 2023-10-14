@@ -52,6 +52,11 @@ urlpatterns = [
         views.edit_person,
         name="edit_person",
     ),
+    path(
+        "investigate_subject/<str:subject_name>/<str:group>",
+        views.investigate_subject,
+        name="investigate_subject",
+    ),
     re_path(
         r"^.*$",
         RedirectView.as_view(url="overview", permanent=False),
