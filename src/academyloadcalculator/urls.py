@@ -7,7 +7,7 @@ static_urlpatterns = [
     re_path(r"^static/(?P<path>.*)$", serve, {"document_root": settings.STATIC_ROOT}),
 ]
 urlpatterns = [
+    path("", include(static_urlpatterns)),
     path("admin/", admin.site.urls),
     path("", include("website.urls")),
-    path("", include(static_urlpatterns)),
 ]

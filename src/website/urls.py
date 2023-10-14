@@ -58,4 +58,9 @@ urlpatterns = [
         views.investigate_subject,
         name="investigate_subject",
     ),
+    re_path(
+        r"^.*$",
+        RedirectView.as_view(url="overview", permanent=False),
+        name="index",
+    ),
 ]
