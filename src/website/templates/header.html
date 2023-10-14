@@ -1,34 +1,29 @@
-<nav class="navbar navbar-expand-sm bg-light navbar-light">
-  <div class="container-fluid">
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a
-          class="nav-link {% if request.path == "/overview" %}active{% endif %}"
-          href="/overview"
-          >ППС</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link {% if request.path == "/bachelor" %}active{% endif %}"
-          href="/bachelor"
-          >Бакалавриат</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link {% if request.path == "/magistrate" %}active{% endif %}"
-          href="/magistrate"
-          >Магистратура</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link {% if request.path == "/data" %}active{% endif %}"
-          href="/data"
-          >Данные</a
-        >
-      </li>
-    </ul>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid container">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link {% if request.path == "/overview" %}navbar-brand active{% endif %}" href="/overview">ППС</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.path == "/bachelor" %}navbar-brand active{% endif %}" href="/bachelor">Бакалавриат</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.path == "/magistrate" %}navbar-brand active{% endif %}" href="/magistrate">Магистратура</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.path == "/data" %}navbar-brand active{% endif %}" href="/data">Данные</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav">
+        <li class="nav-item">
+      <a class="nav-link active" href="/logout">Выйти</a>
+    </li>
+      </ul>
+    </div>
   </div>
 </nav>

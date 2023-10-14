@@ -1,6 +1,9 @@
-DJANGO_DATABASE_HOST = academyloadcalculator_db
-DJANGO_DATABASE_PORT = 5432
-DJANGO_DATABASE_NAME = academyloadcalculator
-DJANGO_DATABASE_USER = postgres
-DJANGO_DATABASE_PASSWORD = 1234
-DJANGO_SECRET_KEY = django-insecure-)w2bskut3o-70$2)(h!a156m_@j4am^2)anyx6^hr6=f-n9%li
+DJANGO_DATABASE_HOST= academyloadcalculator_db
+DJANGO_DATABASE_PORT= 5432
+DJANGO_DATABASE_NAME= academyloadcalculator
+DJANGO_DATABASE_USER= postgres
+DJANGO_DATABASE_PASSWORD= 1234
+DJANGO_SECRET_KEY= django-insecure-)w2bskut3o-70$2)(h!a156m_@j4am^2)anyx6^hr6=f-n9%li
+DJANGO_SUPERUSER_PASSWORD= admin
+DJANGO_SUPERUSER_EMAIL= admin@admin.com
+DJANGO_SUPERUSER_USERNAME= admin

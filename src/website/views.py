@@ -2,13 +2,16 @@ import json
 
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, JsonResponse, QueryDict
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
 
-from .forms import DataFileForm
+from .forms import DataFileForm, LoginForm
 from .models import Group, Person, Position, Subject
 from .utils import calculate_employee_load
 
 
+@login_required(login_url="login")
 def overview(request):
     to_render = list()
     for item in Person.objects.all():
@@ -32,6 +35,7 @@ def overview(request):
     return render(request, "overview.html", {"employees": to_render})
 
 
+@login_required(login_url="login")
 def data(request):
     if request.method == "POST":
         form = DataFileForm(request.POST, request.FILES)
@@ -82,7 +86,6 @@ def save_person(request):
             study_level=item["study_level"],
             name=item["name"],
         ).first()
-        print(subject not in person.subjects.all())
         if subject not in person.subjects.all():
             person.subjects.add(subject)
     return JsonResponse(
@@ -176,7 +179,6 @@ def get_employee(request):
         data["subjects"][f"{subject.name} | {subject.study_level}"][
             subject.holding_type
         ]["groups"].append(f"{subject.groups.name} | {str(subject.semester)} Семестр")
-    print(data)
     return JsonResponse(
         {
             "message": {"status": "ok"},
@@ -337,6 +339,7 @@ def get_subject_ciphers_and_directions_by_name_level_holding(request):
     )
 
 
+@login_required(login_url="login")
 def bachelor(request):
     subjects = {}
 
@@ -361,39 +364,7 @@ def bachelor(request):
     )
 
 
-# def magistrate(request):
-#     subjects = {}
-#     for subject in (
-#         Subject.objects.filter(study_level="Магистратура")
-#         .order_by("subject_type")
-#         .all()
-#     ):
-#         subjects[subject.subject_type] = subjects.get(subject.subject_type, dict())
-#         subjects[subject.subject_type][subject.name] = subjects[
-#             subject.subject_type
-#         ].get(subject.name, dict())
-#         subjects[subject.subject_type][subject.name][subject.groups.name] = subjects[
-#             subject.subject_type
-#         ][subject.name].get(subject.groups.name, dict())
-#         subjects[subject.subject_type][subject.name][subject.groups.name][
-#             "credit"
-#         ] = subject.credit
-#         subjects[subject.subject_type][subject.name][subject.groups.name][
-#             subject.holding_type
-#         ] = subjects[subject.subject_type][subject.name][subject.groups.name].get(
-#             subject.holding_type, dict()
-#         )
-#         teacher = Person.objects.filter(subjects__in=[subject.id]).first()
-#         subjects[subject.subject_type][subject.name][subject.groups.name][
-#             subject.holding_type
-#         ]["teacher"] = (teacher.full_name if teacher is not None else None)
-
-
-#     return render(
-#         request,
-#         "subjects.html",
-#         {"subjects": subjects, "study_level": "Магистратура"},
-#     )
+@login_required(login_url="login")
 def magistrate(request):
     subjects = {}
     for item in (
@@ -432,3 +403,26 @@ def investigate_subject(request, subject_name, group):
         "components/investigate_subject.html",
         {"naming": f"{subject_name} - {group}", "info": info},
     )
+
+
+def user_login(request):
+    if request.user.is_authenticated:
+        return redirect("overview")
+    form = LoginForm()
+    if request.method == "POST":
+        form = LoginForm(request, data=request.POST)
+        if form.is_valid():
+            username = request.POST.get("username")
+            password = request.POST.get("password")
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                if request.GET.get("next") is not None:
+                    return redirect(request.GET.get("next"))
+                return redirect("overview")
+    return render(request, "login.html", {"form": form})
+
+
+def user_logout(request):
+    logout(request)
+    return redirect("login")
