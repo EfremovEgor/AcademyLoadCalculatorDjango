@@ -16,7 +16,7 @@
     DEBUG = 1
 Установить зависимости:
 
-	pip install -r requirements.txt
+	pip install -r requirements.dev.<your_system>.txt
 
 Запустить проект:
 
