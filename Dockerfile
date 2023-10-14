@@ -1,5 +1,9 @@
 FROM python:3.11-slim
 
+RUN mkdir /home/app
+RUN mkdir /home/app/web
+RUN mkdir /home/app/web/staticfiles
+
 COPY ./src /app/src
 COPY ./requirements.txt /app
 COPY ./scripts /app/scripts
@@ -15,11 +19,8 @@ RUN chmod a+x scripts/*.sh
 RUN pip install --upgrade pip
 RUN pip3 install -r requirements.txt
 
-ENV HOME=/home/app
-ENV APP_HOME=/home/app/web
-RUN mkdir $APP_HOME
-RUN mkdir $APP_HOME/staticfiles
-WORKDIR $APP_HOME
+
+
 
 EXPOSE 8000
 
