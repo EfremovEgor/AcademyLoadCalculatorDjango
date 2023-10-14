@@ -1,9 +1,8 @@
 
 ## Описание
-Веб-приложен написанное на Python(FastAPI), HTML, CSS, JS, использующееся для вычисления нагрузки на преподавателя, просмотра предметов. Написано для Инженерной академии Российского Университета Дружбы Народов.
+Веб-приложен написанное на Python(Django), HTML, CSS, JS, использующееся для вычисления нагрузки на преподавателя, просмотра предметов. Написано для Инженерной академии Российского Университета Дружбы Народов.
 ## Clone repo
-    git clone https://github.com/EfremovEgor/AcademyLoadCalculatorFastApi.git
-    pip install -r requirements.txt
+    git clone https://github.com/EfremovEgor/AcademyLoadCalculatorDjango.git
     
 ## Run Dev
 Создать ./.env и заполнить его:
@@ -15,6 +14,10 @@
     DJANGO_DATABASE_PASSWORD=password
     DJANGO_SECRET_KEY=key
     DEBUG = 1
+Установить зависимости:
+
+	pip install -r requirements.txt
+
 Запустить проект:
 
 	cd /src
