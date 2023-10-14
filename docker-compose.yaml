@@ -10,7 +10,7 @@ services:
     expose:
       - 5432
     volumes:
-      - data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     restart: always
       
   app:
@@ -22,9 +22,21 @@ services:
       - "8000:8000"
     depends_on:
       - db
+    volumes:
+      - static_volume:/home/app/web/staticfiles
     env_file:
       - env-production
     command: ["/app/scripts/startApp.sh"]
     restart: always
+
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+    ports:
+      - 1337:80
+    depends_on:
+      - app
 volumes:
-  data:
+  postgres_data:
+  static_volume:
