@@ -1,14 +1,16 @@
 FROM python:3.11-slim
 
 RUN mkdir /home/app
-RUN mkdir /home/app/web
-RUN mkdir /home/app/web/staticfiles
+RUN mkdir /home/app/src
+RUN mkdir /home/app/src/staticfiles
+WORKDIR /home/app/src
 
-COPY ./src /app/src
-COPY ./requirements.txt /app
-COPY ./scripts /app/scripts
 
-WORKDIR /app
+COPY ./src /home/app/src
+COPY ./requirements.txt /home/app
+COPY ./scripts /home/app/scripts
+
+WORKDIR /home/app
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1

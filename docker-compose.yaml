@@ -12,7 +12,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
-      
+  
   app:
     build:
       context: ./
@@ -23,16 +23,16 @@ services:
     depends_on:
       - db
     volumes:
-      - static_volume:/home/app/web/staticfiles
+      - static_volume:/home/app/src/staticfiles
     env_file:
       - env-production
-    command: ["/app/scripts/startApp.sh"]
+    command: ["/home/app/scripts/startApp.sh"]
     restart: always
 
   nginx:
     build: ./nginx
     volumes:
-      - static_volume:/home/app/web/staticfiles
+      - static_volume:/home/app/src/staticfiles
     ports:
       - 1337:80
     depends_on:
