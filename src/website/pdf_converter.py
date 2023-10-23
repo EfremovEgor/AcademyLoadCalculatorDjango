@@ -315,7 +315,7 @@ def create_study_level_pdf(info: dict) -> io.BytesIO:
             "Тип",
             "Препод",
             "",
-            "",
+            "/",
         ],
     ]
     style_table_overview = TableStyle(
