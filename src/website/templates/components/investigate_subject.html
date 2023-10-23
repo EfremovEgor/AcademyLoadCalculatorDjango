@@ -1,28 +1,34 @@
 <!-- prettier-ignore -->
 <div  id="investigate_subject_content" csrf={{ csrf_token }} class="modal-content">
     {% load bootstrap5 %} {% bootstrap_css %} {%bootstrap_javascript %}  {% load static %}
-  
     <div class="modal-header">
       <h5 class="modal-title">{{naming}}</h5>
     </div>
     <div class="modal-body">
-      {% for semester,data  in info.items  %}
-      <h5>{{semester}} Семестр</h5>
+      {% for complex_data,data  in info.items  %}
+      <div class="d-flex" style="justify-content: space-between;">
+      <h5>{{complex_data.0}} Семестр </h5>
+      <h6> {{complex_data.1}} Студент(ов)    </h6>
+      </div>
       <table class="table table-hover table-sm table-borderless">
-        {% for type,teacher  in data.items  %}
+        {% for type,info  in data.items  %}
         <tr>
           <td>
             {{type}}
           </td>
-          {% if teacher %}
+          <td>
+            {{info.1}} Часа(ов)
+          </td>
+          {% if info.0 %}
           <td style="color:green">
-            {{teacher}}
+            {{info.0}}
           </td>
           {% else %}
           <td style="color:red">
             Преподаватель отсутствует
           </td>
           {% endif %}
+
         </tr>
         {% endfor %}
       </table>

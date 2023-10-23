@@ -20,30 +20,43 @@
 
     <div class="mb-3">
       <label for="birth_date" class="form-label"
-        >Дата рождения<span class="asteriskField">*</span></label
+        >Дата рождения</label
       >
       <input type="date" class="form-control" id="birth_date" />
     </div>
 
     <div class="mb-3">
       <label for="phone_number" class="form-label"
-        >Телефон<span class="asteriskField">*</span></label
+        >Телефон</label
       >
-      <input type="tel" class="form-control" id="phone_number" />
+      <input onkeyup="phoneMask(this)" type="tel" class="form-control" id="phone_number" />
     </div>
-
     <div class="mb-3">
       <label for="degree" class="form-label"
-        >Ученая степень<span class="asteriskField">*</span></label
+        >Ученая степень</label
       >
-      <input type="text" class="form-control" id="degree" />
+      <select
+      id="degree"
+      class="form-select form-select mb-3"
+    >
+      {% for degree in degrees %}
+      <option value="{{degree}}">{{degree}}</option>
+      {% endfor %}
+    </select>
     </div>
 
     <div class="mb-3">
       <label for="academic_title" class="form-label"
-        >Ученое звание<span class="asteriskField">*</span></label
+        >Ученое звание</label
       >
-      <input type="text" class="form-control" id="academic_title" />
+      <select
+      id="academic_title"
+      class="form-select form-select mb-3"
+    >
+      {% for title in titles %}
+      <option value="{{title}}">{{title}}</option>
+      {% endfor %}
+    </select>
     </div>
 
     <div class="mb-3">
@@ -66,7 +79,7 @@
       <label for="rate" class="form-label"
         >Ставка<span class="asteriskField">*</span></label
       >
-      <input type="number" class="form-control" id="rate" />
+      <input type="number" min="0.1" max="1" class="form-control" id="rate" />
     </div>
     <div class="mb-3 d-md-flex justify-content-md-center mx-auto">
       <button type="button" class="btn btn-primary" id="add_subject_form">

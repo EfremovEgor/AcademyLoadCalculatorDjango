@@ -58,6 +58,21 @@ urlpatterns = [
         views.investigate_subject,
         name="investigate_subject",
     ),
+    path(
+        "get_person_pdf/<int:id>",
+        views.get_person_pdf,
+        name="get_person_pdf",
+    ),
+    path(
+        "get_overview_pdf",
+        views.get_overview_pdf,
+        name="get_overview_pdf",
+    ),
+    path(
+        "get_study_level_pdf/<str:study_level>",
+        views.get_study_level_pdf,
+        name="get_study_level_pdf",
+    ),
     re_path(
         r"^.*$",
         RedirectView.as_view(url="overview", permanent=False),

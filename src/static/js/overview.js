@@ -275,11 +275,20 @@ function save_employee_form_button_on_click(element) {
     rate: form.find("#rate").val(),
   };
 
-  for (let item of Object.values(data)) {
+  if ((data.birth_date === "") | (data.birth_date == null)) {
+    data.birth_date = null;
+  }
+  for (let item of [data.position, data.rate, data.name]) {
     if ((item === "") | (item == null)) {
       return;
     }
   }
+  rate = parseFloat(data.rate);
+  if (rate <= 0 || rate > 1) {
+    alert("Ставка должна быть в пределах (0,1]");
+    return;
+  }
+  data.rate = rate;
   data["subjects"] = [];
   try {
     for (let item of form.find("#subject_forms").find(".subject_form")) {
@@ -432,6 +441,7 @@ function add_subjects_to_filled_form(main_form, subjects) {
 
       success: function (response) {
         const responseData = response.data;
+
         for (let item of responseData[0]) {
           $($(select).find("select")[0]).append(
             $(`<option value="${item}">${item} </option>`)
@@ -482,7 +492,6 @@ function add_subjects_to_filled_form(main_form, subjects) {
       .find("select")) {
       ciphers_and_directions.push($(select).val());
     }
-
     $.ajax({
       async: false,
       data: {
@@ -522,6 +531,7 @@ function add_subjects_to_filled_form(main_form, subjects) {
     );
     Object.entries(value).forEach(([holding_type, data]) => {
       const main_part = add_holding_type(form, name, study_level, holding_type);
+
       for (let cipher_and_direction of data["cipher_and_direction"]) {
         fill_ciphers_and_directions(
           $(main_part).find(".subject_ciphers_and_directions_container")[0],
@@ -544,6 +554,7 @@ function add_subjects_to_filled_form(main_form, subjects) {
     });
   });
 }
+
 function fill_employee_form() {
   const form = $("#edit_employee_content");
 
@@ -581,11 +592,17 @@ function save_edit_employee_form_button_on_click(element) {
     rate: form.find("#rate").val(),
   };
 
-  for (let item of Object.values(data)) {
+  for (let item of [data.position, data.rate, data.name, data.id]) {
     if ((item === "") | (item == null)) {
       return;
     }
   }
+  rate = parseFloat(data.rate);
+  if (rate <= 0 || rate > 1) {
+    alert("Ставка должна быть в пределах (0,1]");
+    return;
+  }
+  data.rate = rate;
   data["subjects"] = [];
   try {
     for (let item of form.find("#subject_forms").find(".subject_form")) {
@@ -728,3 +745,16 @@ function addEventListenersToDynamicElements() {
 $(document).ready(function () {
   if ($("#edit_employee_content").length) fill_employee_form();
 });
+function phoneMask(elem) {
+  var num = $(elem).val().replace(/\D/g, "");
+  $(elem).val(
+    "+" +
+      num.substring(0, 1).replace("8", "7") +
+      "(" +
+      num.substring(1, 4) +
+      ")" +
+      num.substring(4, 7) +
+      "-" +
+      num.substring(7, 11)
+  );
+}

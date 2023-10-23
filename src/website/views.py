@@ -1,13 +1,21 @@
 import json
+import datetime
 
 from django.forms.models import model_to_dict
-from django.http import HttpResponse, JsonResponse, QueryDict
-from django.shortcuts import redirect, render
+from django.http import FileResponse, HttpResponse, JsonResponse, QueryDict
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from dateutil.relativedelta import relativedelta
+from transliterate import translit
 
+from .pdf_converter import (
+    create_overview_pdf,
+    create_person_pdf,
+    create_study_level_pdf,
+)
 from .forms import DataFileForm, LoginForm
-from .models import Group, Person, Position, Subject
+from .models import Group, Person, Position, Subject, Degree, AcademicTitle
 from .utils import calculate_employee_load
 
 
@@ -18,9 +26,18 @@ def overview(request):
         load = calculate_employee_load(item)
         serialized_item = model_to_dict(item)
         position = Position.objects.filter(id=serialized_item["position"])[0]
+        serialized_item["academic_title"] = item.academic_title.name
+        serialized_item["degree"] = item.degree.name
+        serialized_item["birth_date"] = (
+            serialized_item["birth_date"].strftime("%d.%m.%Y")
+            if serialized_item["birth_date"] != datetime.date.min
+            else "Нет"
+        )
         serialized_item["position"] = position.position_name
-        serialized_item["yearly_load"] = position.load
-        serialized_item["salary"] = position.salary * serialized_item["rate"]
+        serialized_item["yearly_load"] = round(
+            position.load * serialized_item["rate"], 2
+        )
+        serialized_item["salary"] = round(position.salary * serialized_item["rate"], 2)
 
         serialized_item.update(
             {
@@ -31,7 +48,7 @@ def overview(request):
             }
         )
         to_render.append(serialized_item)
-
+    to_render.sort(key=lambda a: a["full_name"])
     return render(request, "overview.html", {"employees": to_render})
 
 
@@ -53,9 +70,34 @@ def data(request):
             if model_name == "Предметы":
                 for item in data:
                     cipher = item["cipher"]
-                    groups = Group.objects.all().filter(cipher=cipher)
+                    groups = Group.objects.all().filter(
+                        cipher=cipher,
+                    )
                     for group in groups.all():
+                        if not (
+                            item["course"]
+                            == relativedelta(
+                                datetime.date.today(),
+                                datetime.date(
+                                    datetime.datetime.now().year // 100 * 100
+                                    + int(group.name.split("-")[-1]),
+                                    8,
+                                    1,
+                                ),
+                            ).years
+                            + 1
+                        ):
+                            continue
+                        if item["semester_duration"] == None:
+                            item["semester_duration"] = 0
+                        if item["subject_type"] == None:
+                            item["subject_type"] = "Неизвестно"
+                        if item["holding_type"] == None:
+                            item["holding_type"] = item["subject_type"]
+                        if item["holding_type"].lower().strip() == "семинар":
+                            item["holding_type"] = "Практическое занятие"
                         subject = Subject(**item, groups=group)
+
                         to_create.append(subject)
             else:
                 to_create = [model_to_override[model_name](**item) for item in data]
@@ -70,10 +112,14 @@ def save_person(request):
     data = json.loads(request.body)
     person = Person(
         full_name=data.get("name"),
-        birth_date=data.get("birth_date"),
+        birth_date=data.get("birth_date")
+        if data.get("birth_date") is not None
+        else datetime.datetime.min,
         phone_number=data.get("phone_number"),
-        degree=data.get("degree"),
-        academic_title=data.get("academic_title"),
+        degree=Degree.objects.filter(name=data.get("degree")).first(),
+        academic_title=AcademicTitle.objects.filter(
+            name=data.get("academic_title")
+        ).first(),
         position=Position.objects.filter(position_name=data.get("position")).first(),
         rate=float(data.get("rate")),
     )
@@ -114,6 +160,8 @@ def add_employee(request):
         "components/add_employee_form.html",
         {
             "positions": [item.position_name for item in Position.objects.all()],
+            "titles": [item.name for item in AcademicTitle.objects.all()],
+            "degrees": [item.name for item in Degree.objects.all()],
             "subject_names": sorted(
                 list(
                     Subject.objects.values("name")
@@ -131,6 +179,8 @@ def edit_employee(request):
         "components/edit_employee_form.html",
         {
             "positions": [item.position_name for item in Position.objects.all()],
+            "titles": [item.name for item in AcademicTitle.objects.all()],
+            "degrees": [item.name for item in Degree.objects.all()],
             "subject_names": sorted(
                 list(
                     Subject.objects.values("name")
@@ -142,12 +192,14 @@ def edit_employee(request):
     )
 
 
-def get_employee(request):
-    person = Person.objects.get(pk=request.GET.get("id"))
+def get_person_from_db(id):
+    person = get_object_or_404(Person, pk=id)
     data = model_to_dict(
         person,
         fields=[field.name for field in Person._meta.fields],
     )
+    data["academic_title"] = person.academic_title.name
+    data["degree"] = person.degree.name
     data["position"] = person.position.position_name
     data["subjects"] = dict()
     for subject in person.subjects.all():
@@ -165,7 +217,7 @@ def get_employee(request):
             ] = {"cipher_and_direction": [], "groups": []}
 
         if (
-            ", ".join((subject.cipher, subject.department))
+            ", ".join((subject.cipher, subject.direction))
             not in data["subjects"][f"{subject.name} | {subject.study_level}"][
                 subject.holding_type
             ]["cipher_and_direction"]
@@ -173,12 +225,17 @@ def get_employee(request):
             data["subjects"][f"{subject.name} | {subject.study_level}"][
                 subject.holding_type
             ]["cipher_and_direction"].append(
-                ", ".join((subject.cipher, subject.department))
+                ", ".join((subject.cipher, subject.direction))
             )
 
         data["subjects"][f"{subject.name} | {subject.study_level}"][
             subject.holding_type
         ]["groups"].append(f"{subject.groups.name} | {str(subject.semester)} Семестр")
+    return data
+
+
+def get_employee(request):
+    data = get_person_from_db(request.GET.get("id"))
     return JsonResponse(
         {
             "message": {"status": "ok"},
@@ -192,10 +249,14 @@ def edit_person(request):
     data = json.loads(request.body)
     person = Person.objects.filter(pk=data.get("id")).first()
     person.full_name = data.get("name")
-    person.birth_date = data.get("birth_date")
+    person.birth_date = (
+        data.get("birth_date") if data.get("birth_date") else datetime.datetime.now
+    )
     person.phone_number = data.get("phone_number")
-    person.degree = data.get("degree")
-    person.academic_title = data.get("academic_title")
+    person.degree = Degree.objects.filter(name=data.get("degree")).first()
+    person.academic_title = AcademicTitle.objects.filter(
+        name=data.get("academic_title")
+    ).first()
     person.position = Position.objects.filter(
         position_name=data.get("position")
     ).first()
@@ -281,6 +342,7 @@ def get_subject_groups_by_name_level_holding_cipher_direction(request):
     combined = [
         item.split(", ") for item in request.GET.getlist("ciphers_and_directions[]")
     ]
+
     response_data = set()
     for cipher, direction in combined:
         data = list(
@@ -289,11 +351,10 @@ def get_subject_groups_by_name_level_holding_cipher_direction(request):
                 name=request.GET.get("name"),
                 holding_type=request.GET.get("holding_type"),
                 cipher=cipher.strip(),
-                department=direction,
-            )
-            .only("groups")
-            .distinct("groups")
+                direction=direction,
+            ).only("groups")
         )
+
         response_data.update(
             [
                 f"{subject.groups.name} | {str(subject.semester)} Семестр"
@@ -323,9 +384,9 @@ def get_subject_ciphers_and_directions_by_name_level_holding(request):
                     name=request.GET.get("name"),
                     holding_type=request.GET.get("holding_type"),
                 )
-                .values("cipher", "department")
+                .values("cipher", "direction")
                 .distinct()
-                .values_list("cipher", "department")
+                .values_list("cipher", "direction")
             ]
         ),
     )
@@ -339,24 +400,33 @@ def get_subject_ciphers_and_directions_by_name_level_holding(request):
     )
 
 
-@login_required(login_url="login")
-def bachelor(request):
+def create_subjects_from_db(study_level):
     subjects = {}
-
-    for item in (
+    items = (
         Subject.objects.values_list("name", "groups__name", "subject_type")
-        .filter(study_level="Бакалавриат")
+        .filter(study_level=study_level)
         .order_by("subject_type")
         .all()
-    ):
-        subjects[item[2]] = subjects.get(item[2], dict())
-        subjects[item[2]][item[0]] = subjects[item[2]].get(item[0], list())
-        if item[1] not in subjects[item[2]][item[0]]:
-            subjects[item[2]][item[0]].append(item[1])
-        subjects[item[2]][item[0]].sort()
-    for key, value in subjects.items():
-        subjects[key] = dict(sorted(value.items()))
+    )
 
+    for item in items:
+        subjects[item[2]] = subjects.get(item[2], dict())
+        subjects[item[2]][item[0]] = subjects[item[2]].get(item[0], dict())
+        subjects[item[2]][item[0]]["20" + item[1].split("-")[-1]] = subjects[item[2]][
+            item[0]
+        ].get("20" + item[1].split("-")[-1], list())
+        if item[1] not in subjects[item[2]][item[0]]["20" + item[1].split("-")[-1]]:
+            subjects[item[2]][item[0]]["20" + item[1].split("-")[-1]].append(item[1])
+        subjects[item[2]][item[0]]["20" + item[1].split("-")[-1]].sort()
+
+        for key, value in subjects.items():
+            subjects[key] = dict(sorted(value.items()))
+    return subjects
+
+
+@login_required(login_url="login")
+def bachelor(request):
+    subjects = create_subjects_from_db("Бакалавриат")
     return render(
         request,
         "subjects.html",
@@ -366,20 +436,7 @@ def bachelor(request):
 
 @login_required(login_url="login")
 def magistrate(request):
-    subjects = {}
-    for item in (
-        Subject.objects.values_list("name", "groups__name", "subject_type")
-        .filter(study_level="Магистратура")
-        .order_by("subject_type")
-    ):
-        subjects[item[2]] = subjects.get(item[2], dict())
-        subjects[item[2]][item[0]] = subjects[item[2]].get(item[0], list())
-        if item[1] not in subjects[item[2]][item[0]]:
-            subjects[item[2]][item[0]].append(item[1])
-        subjects[item[2]][item[0]].sort()
-    for key, value in subjects.items():
-        subjects[key] = dict(sorted(value.items()))
-
+    subjects = create_subjects_from_db("Магистратура")
     return render(
         request,
         "subjects.html",
@@ -390,14 +447,56 @@ def magistrate(request):
 def investigate_subject(request, subject_name, group):
     info = {}
     for item in Subject.objects.filter(name=subject_name, groups__name=group).all():
-        info[item.semester] = info.get(item.semester, dict())
-        info[item.semester][item.holding_type] = info[item.semester].get(
+        info[
+            (
+                item.semester,
+                item.groups.number_of_students,
+            )
+        ] = info.get(
+            (
+                item.semester,
+                item.groups.number_of_students,
+            ),
+            dict(),
+        )
+        info[
+            (
+                item.semester,
+                item.groups.number_of_students,
+            )
+        ][item.holding_type] = info[
+            (
+                item.semester,
+                item.groups.number_of_students,
+            )
+        ].get(
             item.holding_type, None
         )
         teacher = Person.objects.filter(subjects__in=[item.id]).first()
         if teacher is not None:
-            info[item.semester][item.holding_type] = teacher.full_name
+            info[
+                (
+                    item.semester,
+                    item.groups.number_of_students,
+                )
+            ][item.holding_type] = teacher.full_name
+        info[
+            (
+                item.semester,
+                item.groups.number_of_students,
+            )
+        ][item.holding_type] = (
+            info[
+                (
+                    item.semester,
+                    item.groups.number_of_students,
+                )
+            ][item.holding_type],
+            item.total_time_for_group * item.semester_duration,
+        )
+
     info = dict(sorted(info.items()))
+
     return render(
         request,
         "components/investigate_subject.html",
@@ -426,3 +525,146 @@ def user_login(request):
 def user_logout(request):
     logout(request)
     return redirect("login")
+
+
+def get_person_pdf(request, id):
+    person = get_object_or_404(Person, pk=id)
+    data = model_to_dict(person)
+    data["degree"] = person.degree.name
+    data["academic_title"] = person.academic_title.name
+    data["position"] = person.position.position_name
+    data["yearly_load"] = round(person.position.load * person.rate, 2)
+    data["salary"] = round(person.position.salary * person.rate, 2)
+    load = calculate_employee_load(person)
+
+    data.update(
+        {
+            "bachelor_odd": load[0],
+            "bachelor_even": load[1],
+            "magistrate_odd": load[2],
+            "magistrate_even": load[3],
+        }
+    )
+    data["subjects"] = dict()
+    for subject in person.subjects.all():
+        if data["subjects"].get(subject.study_level) is None:
+            data["subjects"][subject.study_level] = {}
+        if data["subjects"][subject.study_level].get(subject.name) is None:
+            data["subjects"][subject.study_level][subject.name] = {}
+        if (
+            data["subjects"][subject.study_level][subject.name].get(
+                subject.holding_type
+            )
+            is None
+        ):
+            data["subjects"][subject.study_level][subject.name][
+                subject.holding_type
+            ] = {}
+        if (
+            data["subjects"][subject.study_level][subject.name][
+                subject.holding_type
+            ].get(subject.direction)
+            is None
+        ):
+            data["subjects"][subject.study_level][subject.name][subject.holding_type][
+                subject.direction
+            ] = {}
+        if (
+            data["subjects"][subject.study_level][subject.name][subject.holding_type][
+                subject.direction
+            ].get(f"{subject.groups.name}|{subject.semester} сем")
+            is None
+        ):
+            data["subjects"][subject.study_level][subject.name][subject.holding_type][
+                subject.direction
+            ][f"{subject.groups.name}|{subject.semester} сем."] = (
+                subject.total_time_for_group * subject.semester_duration
+            )
+
+    buffer = create_person_pdf(data)
+
+    buffer.seek(0)
+    response = FileResponse(
+        buffer,
+        as_attachment=False,
+        filename=f"{person.full_name}.pdf",
+        content_type="application/pdf",
+    )
+    response[
+        "Content-Disposition"
+    ] = f"inline; filename={translit(person.full_name,'ru',reversed=True)}.pdf"
+    return response
+
+
+def get_overview_pdf(request):
+    data = list()
+    persons = Person.objects.all()
+    for person in persons:
+        info = {}
+        info = model_to_dict(person)
+        info["degree"] = person.degree.name
+        info["academic_title"] = person.academic_title.name
+        info["position"] = person.position.position_name
+        info["yearly_load"] = round(person.position.load * person.rate, 2)
+        info["salary"] = round(person.position.salary * person.rate, 2)
+        load = calculate_employee_load(person)
+        info.update(
+            {
+                "bachelor_odd": load[0],
+                "bachelor_even": load[1],
+                "magistrate_odd": load[2],
+                "magistrate_even": load[3],
+            }
+        )
+        data.append(info)
+
+    buffer = create_overview_pdf(data)
+    buffer.seek(0)
+    response = FileResponse(
+        buffer,
+        as_attachment=False,
+        filename=f"overview.pdf",
+        content_type="application/pdf",
+    )
+    response["Content-Disposition"] = "inline; filename=overview.pdf"
+    return response
+
+
+def get_study_level_pdf(request, study_level):
+    data = dict()
+
+    subjects = (
+        Subject.objects.filter(study_level=study_level).order_by("subject_type").all()
+    )
+
+    for subject in subjects[:10]:
+        data[subject.subject_type] = data.get(subject.subject_type, dict())
+        data[subject.subject_type][subject.name] = data[subject.subject_type].get(
+            subject.name, dict()
+        )
+        data[subject.subject_type][subject.name][subject.groups.name] = data[
+            subject.subject_type
+        ][subject.name].get(subject.groups.name, dict())
+        data[subject.subject_type][subject.name][subject.groups.name][
+            "number_of_students"
+        ] = subject.groups.number_of_students
+        data[subject.subject_type][subject.name][subject.groups.name][
+            "number_of_students"
+        ] = subject.groups.number_of_students
+
+    print(data)
+    buffer = create_study_level_pdf(data)
+    buffer.seek(0)
+
+    response = FileResponse(
+        buffer,
+        as_attachment=False,
+        filename=f"{translit(study_level,'ru',reversed=True)}.pdf",
+        content_type="application/pdf",
+    )
+
+    response[
+        "Content-Disposition"
+    ] = f"inline; filename={translit(study_level,'ru',reversed=True)}.pdf"
+
+    return response
