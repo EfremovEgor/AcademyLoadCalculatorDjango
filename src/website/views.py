@@ -86,11 +86,11 @@ def data(request):
                             + 1
                         ):
                             continue
-                        if item["semester_duration"] == None:
+                        if item["semester_duration"] is None:
                             item["semester_duration"] = 0
-                        if item["subject_type"] == None:
+                        if item["subject_type"] is None:
                             item["subject_type"] = "Неизвестно"
-                        if item["holding_type"] == None:
+                        if item["holding_type"] is None:
                             item["holding_type"] = item["subject_type"]
                         if item["holding_type"].lower().strip() == "семинар":
                             item["holding_type"] = "Практическое занятие"
@@ -621,7 +621,7 @@ def get_overview_pdf(request):
     response = FileResponse(
         buffer,
         as_attachment=False,
-        filename=f"overview.pdf",
+        filename="overview.pdf",
         content_type="application/pdf",
     )
     response["Content-Disposition"] = "inline; filename=overview.pdf"
