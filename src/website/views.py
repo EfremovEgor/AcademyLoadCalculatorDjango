@@ -1,14 +1,11 @@
 import json
 import datetime
-
 from django.forms.models import model_to_dict
 from django.http import FileResponse, HttpResponse, JsonResponse, QueryDict
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
 from dateutil.relativedelta import relativedelta
 from transliterate import translit
-
 from .pdf_converter import (
     create_overview_pdf,
     create_person_pdf,
@@ -17,6 +14,7 @@ from .pdf_converter import (
 from .forms import DataFileForm, LoginForm
 from .models import Group, Person, Position, Subject, Degree, AcademicTitle
 from .utils import calculate_employee_load
+from django.contrib.auth import authenticate, login, logout
 
 
 @login_required(login_url="login")

@@ -1,7 +1,6 @@
 import datetime
 import io
 import textwrap
-
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
 from reportlab.lib.styles import ParagraphStyle
