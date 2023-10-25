@@ -23,14 +23,20 @@ def calculate_employee_load(
             to_calculate.append(subject)
 
     for subject in to_calculate:
+        kf = (
+            2
+            if subject.groups.number_of_students >= 14
+            and subject.holding_type == "Лабораторная работа"
+            else 1
+        )
         if subject.study_level == "Бакалавриат":
             actual_load_bachelor[not (subject.semester % 2)] += (
-                subject.total_time_for_group * subject.semester_duration
+                subject.total_time_for_group * subject.semester_duration * kf
             )
 
         if subject.study_level == "Магистратура":
             actual_load_masters[not (subject.semester % 2)] += (
-                subject.total_time_for_group * subject.semester_duration
+                subject.total_time_for_group * subject.semester_duration * kf
             )
 
     actual_load_bachelor.extend(actual_load_masters)

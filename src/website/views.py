@@ -629,31 +629,42 @@ def get_overview_pdf(request):
 
 
 def get_study_level_pdf(request, study_level):
-    data = dict()
-
-    subjects = (
-        Subject.objects.filter(study_level=study_level).order_by("subject_type").all()
+    subjects = {}
+    items = (
+        Subject.objects.filter(study_level=study_level)
+        .order_by("study_level", "subject_type", "name", "semester")
+        .all()
     )
+    persons = Person.objects.exclude(subjects=None)
+    for item in items:
+        subjects[item.study_level] = subjects.get(item.study_level, dict())
 
-    for subject in subjects[:10]:
-        data[subject.subject_type] = data.get(subject.subject_type, dict())
-        data[subject.subject_type][subject.name] = data[subject.subject_type].get(
-            subject.name, dict()
+        subjects[item.study_level][item.name] = subjects[item.study_level].get(
+            item.name, dict()
         )
-        data[subject.subject_type][subject.name][subject.groups.name] = data[
-            subject.subject_type
-        ][subject.name].get(subject.groups.name, dict())
-        data[subject.subject_type][subject.name][subject.groups.name][
-            "number_of_students"
-        ] = subject.groups.number_of_students
-        data[subject.subject_type][subject.name][subject.groups.name][
-            "number_of_students"
-        ] = subject.groups.number_of_students
-
-    print(data)
-    buffer = create_study_level_pdf(data)
+        subjects[item.study_level][item.name][item.groups.name] = subjects[
+            item.study_level
+        ][item.name].get(item.groups.name, dict())
+        subjects[item.study_level][item.name][item.groups.name][
+            item.semester
+        ] = subjects[item.study_level][item.name][item.groups.name].get(
+            item.semester, dict()
+        )
+        teacher = persons.filter(subjects__in=[item.id]).first()
+        if teacher is not None:
+            teacher = teacher.full_name
+        subjects[item.study_level][item.name][item.groups.name][item.semester][
+            item.holding_type
+        ] = {
+            "total_time": item.total_time_for_group * item.semester_duration,
+            "teacher": teacher,
+            "number_of_students": item.groups.number_of_students,
+        }
+        subjects[item.study_level][item.name] = dict(
+            sorted(subjects[item.study_level][item.name].items())
+        )
+    buffer = create_study_level_pdf(subjects)
     buffer.seek(0)
-
     response = FileResponse(
         buffer,
         as_attachment=False,

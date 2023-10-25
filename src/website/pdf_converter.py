@@ -1,6 +1,7 @@
 import datetime
 import io
 import textwrap
+from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
 from reportlab.lib.styles import ParagraphStyle
@@ -23,9 +24,7 @@ style_main_text = ParagraphStyle(
 
 def create_person_pdf(info: dict) -> io.BytesIO:
     buffer = io.BytesIO()
-    pdfmetrics.registerFont(
-        TTFont("Russian", "./static/fonts/Calibri Light.ttf")
-    )
+    pdfmetrics.registerFont(TTFont("Russian", "./static/fonts/Calibri Light.ttf"))
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
@@ -53,16 +52,10 @@ def create_person_pdf(info: dict) -> io.BytesIO:
         Paragraph(f"Ученая степень: {info['degree']}", style=style_main_text)
     )
     flowables.append(
-        Paragraph(
-            f"Ученое звание: {info['academic_title']}", style=style_main_text
-        )
+        Paragraph(f"Ученое звание: {info['academic_title']}", style=style_main_text)
     )
-    flowables.append(
-        Paragraph(f"Должность: {info['position']}", style=style_main_text)
-    )
-    flowables.append(
-        Paragraph(f"Ставка: {info['rate']}", style=style_main_text)
-    )
+    flowables.append(Paragraph(f"Должность: {info['position']}", style=style_main_text))
+    flowables.append(Paragraph(f"Ставка: {info['rate']}", style=style_main_text))
     flowables.append(
         Paragraph(
             f"Нагрузка по ставке в год(час): {info['yearly_load']}",
@@ -75,9 +68,7 @@ def create_person_pdf(info: dict) -> io.BytesIO:
             style=style_main_text,
         )
     )
-    flowables.append(
-        Paragraph("Краткая информация по нагрузке", style=style_heading)
-    )
+    flowables.append(Paragraph("Краткая информация по нагрузке", style=style_heading))
     data = [
         [
             "Нагрузка в\nбакалавриате",
@@ -128,9 +119,7 @@ def create_person_pdf(info: dict) -> io.BytesIO:
     tbl.setStyle(style_table_load)
     flowables.append(tbl)
     if info["subjects"]:
-        flowables.append(
-            Paragraph("Информация по предметам", style=style_heading)
-        )
+        flowables.append(Paragraph("Информация по предметам", style=style_heading))
 
         style_table_subjects_params = [
             ("FONTSIZE", (0, 0), (-1, -1), 11),
@@ -179,9 +168,7 @@ def create_person_pdf(info: dict) -> io.BytesIO:
             ):
                 item[2] = ""
             else:
-                style_table_subjects_params.append(
-                    ("SPAN", (2, current), (2, i - 1))
-                )
+                style_table_subjects_params.append(("SPAN", (2, current), (2, i - 1)))
                 current = i
         style_table_subjects_params.append(("SPAN", (2, current), (2, i)))
 
@@ -190,9 +177,7 @@ def create_person_pdf(info: dict) -> io.BytesIO:
             if item[1] == data_[current][1] and item[0] == data_[current][0]:
                 item[1] = ""
             else:
-                style_table_subjects_params.append(
-                    ("SPAN", (1, current), (1, i - 1))
-                )
+                style_table_subjects_params.append(("SPAN", (1, current), (1, i - 1)))
                 current = i
         style_table_subjects_params.append(("SPAN", (1, current), (1, i)))
 
@@ -201,9 +186,7 @@ def create_person_pdf(info: dict) -> io.BytesIO:
             if item[0] == data_[current][0]:
                 item[0] = ""
             else:
-                style_table_subjects_params.append(
-                    ("SPAN", (0, current), (0, i - 1))
-                )
+                style_table_subjects_params.append(("SPAN", (0, current), (0, i - 1)))
                 current = i
         style_table_subjects_params.append(("SPAN", (0, current), (0, i)))
 
@@ -220,9 +203,7 @@ def create_person_pdf(info: dict) -> io.BytesIO:
 
 def create_overview_pdf(info: dict) -> io.BytesIO:
     buffer = io.BytesIO()
-    pdfmetrics.registerFont(
-        TTFont("Russian", "./static/fonts/Calibri Light.ttf")
-    )
+    pdfmetrics.registerFont(TTFont("Russian", "./static/fonts/Calibri Light.ttf"))
     doc = SimpleDocTemplate(
         buffer,
         pagesize=landscape(A4),
@@ -271,9 +252,7 @@ def create_overview_pdf(info: dict) -> io.BytesIO:
         values = list(item.values())
         values[1] = values[1].replace(" ", "\n")
         values[2] = (
-            values[2].strftime("%d.%m.%Y")
-            if values[2] != datetime.date.min
-            else "Нет"
+            values[2].strftime("%d.%m.%Y") if values[2] != datetime.date.min else "Нет"
         )
         values[3] = "Нет" if not values[3] else values[3]
         data.append(values[1:8] + values[9:])
@@ -309,9 +288,7 @@ def create_overview_pdf(info: dict) -> io.BytesIO:
 
 def create_study_level_pdf(info: dict) -> io.BytesIO:
     buffer = io.BytesIO()
-    pdfmetrics.registerFont(
-        TTFont("Russian", "./static/fonts/Calibri Light.ttf")
-    )
+    pdfmetrics.registerFont(TTFont("Russian", "./static/fonts/Calibri Light.ttf"))
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
@@ -322,6 +299,7 @@ def create_study_level_pdf(info: dict) -> io.BytesIO:
         title="Общая информация",
     )
     flowables = []
+
     data = [
         [
             "Название",
@@ -342,23 +320,109 @@ def create_study_level_pdf(info: dict) -> io.BytesIO:
             "/",
         ],
     ]
-    style_table_overview = TableStyle(
+
+    # style_table_overview = TableStyle(
+    #     [
+    #         ("FONTSIZE", (0, 0), (-1, -1), 14),
+    #         ("FONTNAME", (0, 0), (-1, -1), "Russian"),
+    #         ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+    #         ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+    #         ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+    #         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+    #         ("SPAN", (1, 1), (-1, 1)),
+    #         ("SPAN", (1, 2), (-1, 2)),
+    #     ]
+    # )
+    style_table = TableStyle(
         [
-            ("FONTSIZE", (0, 0), (-1, -1), 14),
+            ("FONTSIZE", (0, 0), (-1, -1), 16),
             ("FONTNAME", (0, 0), (-1, -1), "Russian"),
             ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
             ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
-            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+            ("ALIGN", (0, 0), (0, -1), "CENTER"),
             ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("SPAN", (1, 1), (-1, 1)),
-            ("SPAN", (1, 2), (-1, 2)),
+            ("SPAN", (0, 0), (-1, 0)),
         ]
     )
-    tbl = Table(data)
-    tbl.setStyle(style_table_overview)
-    flowables.append(tbl)
-    tbl = Table(data)
-    tbl.setStyle(style_table_overview)
-    flowables.append(tbl)
+    style_table_group = TableStyle(
+        [
+            ("FONTSIZE", (0, 0), (-1, -1), 15),
+            ("FONTNAME", (0, 0), (-1, -1), "Russian"),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+            ("ALIGN", (0, 0), (0, -1), "CENTER"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("SPAN", (2, 0), (-1, 0)),
+        ]
+    )
+
+    style_subject_name = ParagraphStyle(
+        name="Normal", fontName="Russian", fontSize=14, spaceAfter=10
+    )
+
+    table_width = 5 * [2 * inch]
+    for study_level, item_data in info.items():
+        for subject_name, subject_data in item_data.items():
+            data = list()
+            data.append([textwrap.fill(subject_name, 60), "", "", ""])
+            tbl = Table(data, colWidths=table_width)
+            tbl.setStyle(style_table)
+            flowables.append(tbl)
+            for group_name, group_data in subject_data.items():
+                for semester, semester_data in group_data.items():
+                    data = list()
+                    data.append(
+                        [
+                            group_name,
+                            f"{semester} Семестр",
+                            f"{list(semester_data.items())[0][1]['number_of_students']} Студент(ов)",
+                            "",
+                        ]
+                    )
+                    tbl = Table(data, colWidths=table_width)
+                    tbl.setStyle(style_table_group)
+                    flowables.append(tbl)
+                    for holding_type, holding_data in semester_data.items():
+                        amount = 1
+                        if (
+                            holding_type == "Лабораторная работа"
+                            and holding_data["number_of_students"] >= 14
+                        ):
+                            amount = 2
+                        for _ in range(amount):
+                            style_table_type = TableStyle(
+                                [
+                                    ("FONTSIZE", (0, 0), (-1, -1), 14),
+                                    ("FONTNAME", (0, 0), (-1, -1), "Russian"),
+                                    ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+                                    ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+                                    ("ALIGN", (0, 0), (0, -1), "CENTER"),
+                                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                                    ("SPAN", (2, 0), (-1, 0)),
+                                ]
+                            )
+                            data = list()
+                            data.append(
+                                [
+                                    textwrap.fill(holding_type, 20),
+                                    f"{holding_data['total_time']} Час(ов)",
+                                    textwrap.fill(holding_data["teacher"], 20)
+                                    if holding_data["teacher"] is not None
+                                    else "Нет",
+                                    "",
+                                ]
+                            )
+                            if holding_data["teacher"] is not None:
+                                style_table_type.add(
+                                    "BACKGROUND", (0, 0), (-1, -1), colors.palegreen
+                                )
+                            else:
+                                style_table_type.add(
+                                    "BACKGROUND", (0, 0), (-1, -1), colors.pink
+                                )
+                            tbl = Table(data, colWidths=table_width)
+                            tbl.setStyle(style_table_type)
+                            flowables.append(tbl)
+
     doc.build(flowables)
     return buffer
