@@ -75,6 +75,14 @@
       <hr />
       <div class="row align-items-end mb-3">
         <div class="col">
+          <label for="id_subject_study_level" class="form-label requiredField">
+            Уровень обучения<span class="asteriskField">*</span>
+          </label>
+          <select id="id_subject_study_level" name="subject_study_level" class="form-select form-select" disabled>
+            <option disabled selected></option>
+          </select>
+        </div>
+        <div class="col">
           <label for="id_subject_name" class="form-label requiredField">
             Название предмета<span class="asteriskField">*</span>
           </label>
@@ -85,14 +93,7 @@
             {% endfor %}
           </select>
         </div>
-        <div class="col">
-          <label for="id_subject_study_level" class="form-label requiredField">
-            Уровень обучения<span class="asteriskField">*</span>
-          </label>
-          <select id="id_subject_study_level" name="subject_study_level" class="form-select form-select" disabled>
-            <option disabled selected></option>
-          </select>
-        </div>
+
         <div class="col">
           <button type="button" class="btn btn-primary add_subject_holding_type" id="add_subject_holding_type">
             Добавить тип занятий

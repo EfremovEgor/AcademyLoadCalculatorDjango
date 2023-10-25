@@ -296,7 +296,7 @@ def create_study_level_pdf(info: dict) -> io.BytesIO:
         leftMargin=1,
         topMargin=5,
         bottomMargin=5,
-        title="Общая информация",
+        title=list(info.keys())[0],
     )
     flowables = []
 

@@ -554,7 +554,6 @@ function add_subjects_to_filled_form(main_form, subjects) {
     });
   });
 }
-
 function fill_employee_form() {
   const form = $("#edit_employee_content");
 

@@ -2,7 +2,7 @@
 ## Описание
 Веб-приложен написанное на Python(Django), HTML, CSS, JS, использующееся для вычисления нагрузки на преподавателя, просмотра предметов. Написано для Инженерной академии Российского Университета Дружбы Народов.
 ## Clone repo
-    git clone https://github.com/EfremovEgor/AcademyLoadCalculatorDjango.git
+    $ git clone https://github.com/EfremovEgor/AcademyLoadCalculatorDjango.git
     
 ## Run Dev
 Создать ./.env и заполнить его:
@@ -30,7 +30,7 @@
  ./docker-compose.yaml
 ./nginx/nginx.conf
 
-	docker compose up —build -d
+	$ docker compose up —build -d
 
     
 ## Скриншоты
