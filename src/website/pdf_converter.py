@@ -300,39 +300,6 @@ def create_study_level_pdf(info: dict) -> io.BytesIO:
     )
     flowables = []
 
-    data = [
-        [
-            "Название",
-            "Кол-во человек",
-            "Семестр",
-            "Кол-во часов",
-        ],
-        [
-            "Тип",
-            "Препод",
-            "",
-            "",
-        ],
-        [
-            "Тип",
-            "Препод",
-            "",
-            "/",
-        ],
-    ]
-
-    # style_table_overview = TableStyle(
-    #     [
-    #         ("FONTSIZE", (0, 0), (-1, -1), 14),
-    #         ("FONTNAME", (0, 0), (-1, -1), "Russian"),
-    #         ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
-    #         ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
-    #         ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-    #         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-    #         ("SPAN", (1, 1), (-1, 1)),
-    #         ("SPAN", (1, 2), (-1, 2)),
-    #     ]
-    # )
     style_table = TableStyle(
         [
             ("FONTSIZE", (0, 0), (-1, -1), 16),
@@ -356,12 +323,8 @@ def create_study_level_pdf(info: dict) -> io.BytesIO:
         ]
     )
 
-    style_subject_name = ParagraphStyle(
-        name="Normal", fontName="Russian", fontSize=14, spaceAfter=10
-    )
-
     table_width = 5 * [2 * inch]
-    for study_level, item_data in info.items():
+    for _, item_data in info.items():
         for subject_name, subject_data in item_data.items():
             data = list()
             data.append([textwrap.fill(subject_name, 60), "", "", ""])

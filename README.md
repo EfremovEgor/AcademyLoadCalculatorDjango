@@ -16,12 +16,12 @@
     DEBUG = 1
 Установить зависимости:
 
-	pip install -r requirements.dev.<your_system>.txt
+	$ pip install -r requirements.dev.<your_system>.txt
 
 Запустить проект:
 
-	cd /src
-    python manage.py runserver
+	$ cd /src
+    $ python manage.py runserver
 
 ## Run Prod
 Заполнить под себя:
