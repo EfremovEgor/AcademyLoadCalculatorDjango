@@ -1,20 +1,22 @@
-import json
 import datetime
+import json
+
+from dateutil.relativedelta import relativedelta
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.forms.models import model_to_dict
 from django.http import FileResponse, HttpResponse, JsonResponse, QueryDict
 from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib.auth.decorators import login_required
-from dateutil.relativedelta import relativedelta
 from transliterate import translit
+
+from .forms import DataFileForm, LoginForm
+from .models import AcademicTitle, Degree, Group, Person, Position, Subject
 from .pdf_converter import (
     create_overview_pdf,
     create_person_pdf,
     create_study_level_pdf,
 )
-from .forms import DataFileForm, LoginForm
-from .models import Group, Person, Position, Subject, Degree, AcademicTitle
 from .utils import calculate_employee_load
-from django.contrib.auth import authenticate, login, logout
 
 
 @login_required(login_url="login")
@@ -160,14 +162,30 @@ def add_employee(request):
             "positions": [item.position_name for item in Position.objects.all()],
             "titles": [item.name for item in AcademicTitle.objects.all()],
             "degrees": [item.name for item in Degree.objects.all()],
-            "subject_names": sorted(
-                list(
-                    Subject.objects.values("name")
-                    .distinct()
-                    .values_list("name", flat=True)
-                )
-            ),
+            "study_levels": Subject.objects.values("study_level")
+            .distinct()
+            .values_list("study_level", flat=True),
         },
+    )
+
+
+def get_subject_name_by_study_level(request):
+    if request.method != "GET":
+        return HttpResponse({"message": f"Method Not Allowed {request.method}"})
+    response_data = sorted(
+        list(
+            Subject.objects.filter(study_level=request.GET.get("study_level"))
+            .values("name")
+            .distinct()
+            .values_list("name", flat=True)
+        )
+    )
+    return JsonResponse(
+        {
+            "message": {"status": "ok"},
+            "data": response_data,
+        },
+        content_type="application/json",
     )
 
 
@@ -179,13 +197,9 @@ def edit_employee(request):
             "positions": [item.position_name for item in Position.objects.all()],
             "titles": [item.name for item in AcademicTitle.objects.all()],
             "degrees": [item.name for item in Degree.objects.all()],
-            "subject_names": sorted(
-                list(
-                    Subject.objects.values("name")
-                    .distinct()
-                    .values_list("name", flat=True)
-                )
-            ),
+            "study_levels": Subject.objects.values("study_level")
+            .distinct()
+            .values_list("study_level", flat=True),
         },
     )
 

@@ -103,21 +103,6 @@
       <hr />
       <div class="row align-items-end mb-3">
         <div class="col">
-          <label for="id_subject_name" class="form-label requiredField">
-            Название предмета<span class="asteriskField">*</span>
-          </label>
-          <select
-            id="id_subject_name"
-            name="subject_name"
-            class="form-select form-select subject_name_select"
-          >
-            <option disabled selected></option>
-            {% for select in subject_names %}
-            <option value="{{select}}">{{select}}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col">
           <label for="id_subject_study_level" class="form-label requiredField">
             Уровень обучения<span class="asteriskField">*</span>
           </label>
@@ -125,11 +110,29 @@
             id="id_subject_study_level"
             name="subject_study_level"
             class="form-select form-select"
+            
+          >
+            <option disabled selected></option>
+            {% for select in study_levels %}
+            <option value="{{select}}">{{select}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col">
+          <label for="id_subject_name" class="form-label requiredField">
+            Название предмета<span class="asteriskField">*</span>
+          </label>
+          <select
+            id="id_subject_name"
+            name="subject_name"
+            class="form-select form-select subject_name_select"
             disabled
           >
             <option disabled selected></option>
+
           </select>
         </div>
+
         <div class="col">
           <button
             type="button"

@@ -31,8 +31,8 @@ $("#delete_employee_button").click(function (element) {
 });
 function add_subject_holding_type_button_on_click(element) {
   const form = element.target.parentElement.parentElement.parentElement;
-  if ($(form).find("#id_subject_study_level").val() === null) {
-    alert("Уровень обучения не может быть пустым");
+  if ($(form).find("#id_subject_name").val() === null) {
+    alert("Название предмета не может быть пустым");
     return;
   }
   const subjectMainPart = $("#base_subject_form")
@@ -199,28 +199,33 @@ function add_subject_group_button_on_click(element) {
   form.append(select);
   addEventListenersToDynamicElements();
 }
-function subject_name_on_select(element) {
+function subject_study_level_on_select(element) {
   const form = element.target.parentElement.parentElement.parentElement;
   $(form).find(".subject_main_part").remove();
+  console.log(1);
 
-  const level_select = $(form).find("#id_subject_study_level");
-  level_select.empty();
-  level_select.append($(`<option disabled selected></option>`));
+  const name_select = $(form).find("#id_subject_name");
+  name_select.empty();
+  name_select.append($(`<option disabled selected></option>`));
   $.ajax({
     async: false,
-    data: { name: $(element.target).val() },
-    url: "subjects/get_subject_study_level_by_name",
+    data: { study_level: $(element.target).val() },
+    url: "subjects/get_subject_name_by_study_level",
     success: function (response) {
       const responseData = response.data;
-      level_select.prop("disabled", false);
+      name_select.prop("disabled", false);
       for (let item of responseData) {
-        level_select.append($(`<option value="${item}">${item} </option>`));
+        name_select.append($(`<option value="${item}">${item} </option>`));
       }
     },
     error: function (response) {
       console.log(response.responseJSON.errors);
     },
   });
+}
+function subject_name_on_select(element) {
+  const form = element.target.parentElement.parentElement.parentElement;
+  $(form).find(".subject_main_part").remove();
 }
 function holding_type_on_select(element) {
   const form = element.target.parentElement.parentElement;
@@ -357,20 +362,20 @@ function add_subjects_to_filled_form(main_form, subjects) {
     addEventListenersToDynamicElements();
     return clone;
   }
-  function fill_study_level(form, select, value, name) {
+  function fill_subject_name(form, select, value, name) {
     $(form).find(".subject_main_part").remove();
-    const level_select = $(form).find("#id_subject_study_level");
-    level_select.empty();
-    level_select.append($(`<option disabled selected></option>`));
+    const name_select = $(form).find("#id_subject_name");
+    name_select.empty();
+    name_select.append($(`<option disabled selected></option>`));
     $.ajax({
       async: false,
-      data: { name: name },
-      url: "subjects/get_subject_study_level_by_name",
+      data: { study_level: name },
+      url: "subjects/get_subject_name_by_study_level",
       success: function (response) {
         const responseData = response.data;
-        level_select.prop("disabled", false);
+        name_select.prop("disabled", false);
         for (let item of responseData) {
-          level_select.append($(`<option value="${item}">${item} </option>`));
+          name_select.append($(`<option value="${item}">${item} </option>`));
         }
       },
       error: function (response) {
@@ -520,15 +525,11 @@ function add_subjects_to_filled_form(main_form, subjects) {
   }
   Object.entries(subjects).forEach(([key, value]) => {
     const form = create_base_form(main_form);
-    form.find("#id_subject_name").val(key.split(" | ")[0]);
+    form.find("#id_subject_study_level").val(key.split(" | ")[1]);
+
     const study_level = key.split(" | ")[1];
     const name = key.split(" | ")[0];
-    fill_study_level(
-      form,
-      form.find("#id_subject_study_level"),
-      study_level,
-      name
-    );
+    fill_subject_name(form, form.find("#id_subject_name"), name, study_level);
     Object.entries(value).forEach(([holding_type, data]) => {
       const main_part = add_holding_type(form, name, study_level, holding_type);
 
@@ -695,6 +696,12 @@ function addEventListenersToDynamicElements() {
   for (let select of subject_name_selects) {
     select.removeEventListener("change", subject_name_on_select, true);
     select.addEventListener("change", subject_name_on_select);
+  }
+
+  const subject_study_level_selects = $(".subject_study_level_select");
+  for (let select of subject_study_level_selects) {
+    select.removeEventListener("change", subject_study_level_on_select, true);
+    select.addEventListener("change", subject_study_level_on_select);
   }
 
   const holding_type_selects = $(".holding_type_select");

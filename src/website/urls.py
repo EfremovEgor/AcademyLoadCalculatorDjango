@@ -1,5 +1,6 @@
 from django.urls import path, re_path
 from django.views.generic.base import RedirectView
+
 from . import views
 
 
@@ -17,6 +18,11 @@ urlpatterns = [
         "positions/get_positions",
         views.get_positions,
         name="get_positions",
+    ),
+    path(
+        "subjects/get_subject_name_by_study_level",
+        views.get_subject_name_by_study_level,
+        name="get_subject_name_by_study_level",
     ),
     path(
         "subjects/get_subject_study_level_by_name",

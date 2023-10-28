@@ -1,13 +1,15 @@
 import datetime
 import io
 import textwrap
-from reportlab.lib.units import inch
-from reportlab.lib.pagesizes import A4, landscape
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
-from reportlab.lib.styles import ParagraphStyle
+
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.units import inch
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
+
 
 style_heading = ParagraphStyle(
     name="Normal",
@@ -24,7 +26,9 @@ style_main_text = ParagraphStyle(
 
 def create_person_pdf(info: dict) -> io.BytesIO:
     buffer = io.BytesIO()
-    pdfmetrics.registerFont(TTFont("Russian", "./static/fonts/Calibri Light.ttf"))
+    pdfmetrics.registerFont(
+        TTFont("Russian", "./static/fonts/Calibri Light.ttf")
+    )
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
@@ -52,10 +56,16 @@ def create_person_pdf(info: dict) -> io.BytesIO:
         Paragraph(f"Ученая степень: {info['degree']}", style=style_main_text)
     )
     flowables.append(
-        Paragraph(f"Ученое звание: {info['academic_title']}", style=style_main_text)
+        Paragraph(
+            f"Ученое звание: {info['academic_title']}", style=style_main_text
+        )
     )
-    flowables.append(Paragraph(f"Должность: {info['position']}", style=style_main_text))
-    flowables.append(Paragraph(f"Ставка: {info['rate']}", style=style_main_text))
+    flowables.append(
+        Paragraph(f"Должность: {info['position']}", style=style_main_text)
+    )
+    flowables.append(
+        Paragraph(f"Ставка: {info['rate']}", style=style_main_text)
+    )
     flowables.append(
         Paragraph(
             f"Нагрузка по ставке в год(час): {info['yearly_load']}",
@@ -68,7 +78,9 @@ def create_person_pdf(info: dict) -> io.BytesIO:
             style=style_main_text,
         )
     )
-    flowables.append(Paragraph("Краткая информация по нагрузке", style=style_heading))
+    flowables.append(
+        Paragraph("Краткая информация по нагрузке", style=style_heading)
+    )
     data = [
         [
             "Нагрузка в\nбакалавриате",
@@ -119,7 +131,9 @@ def create_person_pdf(info: dict) -> io.BytesIO:
     tbl.setStyle(style_table_load)
     flowables.append(tbl)
     if info["subjects"]:
-        flowables.append(Paragraph("Информация по предметам", style=style_heading))
+        flowables.append(
+            Paragraph("Информация по предметам", style=style_heading)
+        )
 
         style_table_subjects_params = [
             ("FONTSIZE", (0, 0), (-1, -1), 11),
@@ -168,7 +182,9 @@ def create_person_pdf(info: dict) -> io.BytesIO:
             ):
                 item[2] = ""
             else:
-                style_table_subjects_params.append(("SPAN", (2, current), (2, i - 1)))
+                style_table_subjects_params.append(
+                    ("SPAN", (2, current), (2, i - 1))
+                )
                 current = i
         style_table_subjects_params.append(("SPAN", (2, current), (2, i)))
 
@@ -177,7 +193,9 @@ def create_person_pdf(info: dict) -> io.BytesIO:
             if item[1] == data_[current][1] and item[0] == data_[current][0]:
                 item[1] = ""
             else:
-                style_table_subjects_params.append(("SPAN", (1, current), (1, i - 1)))
+                style_table_subjects_params.append(
+                    ("SPAN", (1, current), (1, i - 1))
+                )
                 current = i
         style_table_subjects_params.append(("SPAN", (1, current), (1, i)))
 
@@ -186,7 +204,9 @@ def create_person_pdf(info: dict) -> io.BytesIO:
             if item[0] == data_[current][0]:
                 item[0] = ""
             else:
-                style_table_subjects_params.append(("SPAN", (0, current), (0, i - 1)))
+                style_table_subjects_params.append(
+                    ("SPAN", (0, current), (0, i - 1))
+                )
                 current = i
         style_table_subjects_params.append(("SPAN", (0, current), (0, i)))
 
@@ -203,7 +223,9 @@ def create_person_pdf(info: dict) -> io.BytesIO:
 
 def create_overview_pdf(info: dict) -> io.BytesIO:
     buffer = io.BytesIO()
-    pdfmetrics.registerFont(TTFont("Russian", "./static/fonts/Calibri Light.ttf"))
+    pdfmetrics.registerFont(
+        TTFont("Russian", "./static/fonts/Calibri Light.ttf")
+    )
     doc = SimpleDocTemplate(
         buffer,
         pagesize=landscape(A4),
@@ -252,7 +274,9 @@ def create_overview_pdf(info: dict) -> io.BytesIO:
         values = list(item.values())
         values[1] = values[1].replace(" ", "\n")
         values[2] = (
-            values[2].strftime("%d.%m.%Y") if values[2] != datetime.date.min else "Нет"
+            values[2].strftime("%d.%m.%Y")
+            if values[2] != datetime.date.min
+            else "Нет"
         )
         values[3] = "Нет" if not values[3] else values[3]
         data.append(values[1:8] + values[9:])
@@ -288,7 +312,9 @@ def create_overview_pdf(info: dict) -> io.BytesIO:
 
 def create_study_level_pdf(info: dict) -> io.BytesIO:
     buffer = io.BytesIO()
-    pdfmetrics.registerFont(TTFont("Russian", "./static/fonts/Calibri Light.ttf"))
+    pdfmetrics.registerFont(
+        TTFont("Russian", "./static/fonts/Calibri Light.ttf")
+    )
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
@@ -357,7 +383,13 @@ def create_study_level_pdf(info: dict) -> io.BytesIO:
                                 [
                                     ("FONTSIZE", (0, 0), (-1, -1), 14),
                                     ("FONTNAME", (0, 0), (-1, -1), "Russian"),
-                                    ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+                                    (
+                                        "GRID",
+                                        (0, 0),
+                                        (-1, -1),
+                                        0.5,
+                                        colors.black,
+                                    ),
                                     ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
                                     ("ALIGN", (0, 0), (0, -1), "CENTER"),
                                     ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
@@ -377,7 +409,10 @@ def create_study_level_pdf(info: dict) -> io.BytesIO:
                             )
                             if holding_data["teacher"] is not None:
                                 style_table_type.add(
-                                    "BACKGROUND", (0, 0), (-1, -1), colors.palegreen
+                                    "BACKGROUND",
+                                    (0, 0),
+                                    (-1, -1),
+                                    colors.palegreen,
                                 )
                             else:
                                 style_table_type.add(
