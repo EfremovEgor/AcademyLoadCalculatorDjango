@@ -37,7 +37,9 @@ def overview(request):
         serialized_item["yearly_load"] = round(
             position.load * serialized_item["rate"], 2
         )
-        serialized_item["salary"] = round(position.salary * serialized_item["rate"], 2)
+        serialized_item["salary"] = round(
+            position.salary * serialized_item["rate"], 2
+        )
 
         serialized_item.update(
             {
@@ -100,7 +102,9 @@ def data(request):
 
                         to_create.append(subject)
             else:
-                to_create = [model_to_override[model_name](**item) for item in data]
+                to_create = [
+                    model_to_override[model_name](**item) for item in data
+                ]
             model_to_override[model_name].objects.bulk_create(to_create)
 
     else:
@@ -120,7 +124,9 @@ def save_person(request):
         academic_title=AcademicTitle.objects.filter(
             name=data.get("academic_title")
         ).first(),
-        position=Position.objects.filter(position_name=data.get("position")).first(),
+        position=Position.objects.filter(
+            position_name=data.get("position")
+        ).first(),
         rate=float(data.get("rate")),
     )
     person.save()
@@ -147,7 +153,9 @@ def get_positions(request):
         {
             "message": {"status": "ok"},
             "data": {
-                "positions": [item.position_name for item in Position.objects.all()],
+                "positions": [
+                    item.position_name for item in Position.objects.all()
+                ],
             },
         },
         content_type="application/json",
@@ -159,7 +167,9 @@ def add_employee(request):
         request,
         "components/add_employee_form.html",
         {
-            "positions": [item.position_name for item in Position.objects.all()],
+            "positions": [
+                item.position_name for item in Position.objects.all()
+            ],
             "titles": [item.name for item in AcademicTitle.objects.all()],
             "degrees": [item.name for item in Degree.objects.all()],
             "study_levels": Subject.objects.values("study_level")
@@ -171,7 +181,9 @@ def add_employee(request):
 
 def get_subject_name_by_study_level(request):
     if request.method != "GET":
-        return HttpResponse({"message": f"Method Not Allowed {request.method}"})
+        return HttpResponse(
+            {"message": f"Method Not Allowed {request.method}"}
+        )
     response_data = sorted(
         list(
             Subject.objects.filter(study_level=request.GET.get("study_level"))
@@ -194,7 +206,9 @@ def edit_employee(request):
         request,
         "components/edit_employee_form.html",
         {
-            "positions": [item.position_name for item in Position.objects.all()],
+            "positions": [
+                item.position_name for item in Position.objects.all()
+            ],
             "titles": [item.name for item in AcademicTitle.objects.all()],
             "degrees": [item.name for item in Degree.objects.all()],
             "study_levels": Subject.objects.values("study_level")
@@ -215,7 +229,10 @@ def get_person_from_db(id):
     data["position"] = person.position.position_name
     data["subjects"] = dict()
     for subject in person.subjects.all():
-        if data["subjects"].get(f"{subject.name} | {subject.study_level}") is None:
+        if (
+            data["subjects"].get(f"{subject.name} | {subject.study_level}")
+            is None
+        ):
             data["subjects"][f"{subject.name} | {subject.study_level}"] = {}
 
         if (
@@ -242,7 +259,9 @@ def get_person_from_db(id):
 
         data["subjects"][f"{subject.name} | {subject.study_level}"][
             subject.holding_type
-        ]["groups"].append(f"{subject.groups.name} | {str(subject.semester)} Семестр")
+        ]["groups"].append(
+            f"{subject.groups.name} | {str(subject.semester)} Семестр"
+        )
     return data
 
 
@@ -262,7 +281,9 @@ def edit_person(request):
     person = Person.objects.filter(pk=data.get("id")).first()
     person.full_name = data.get("name")
     person.birth_date = (
-        data.get("birth_date") if data.get("birth_date") else datetime.datetime.now
+        data.get("birth_date")
+        if data.get("birth_date")
+        else datetime.datetime.now
     )
     person.phone_number = data.get("phone_number")
     person.degree = Degree.objects.filter(name=data.get("degree")).first()
@@ -302,7 +323,9 @@ def delete_person(request):
 
 def get_subject_study_level_by_name(request):
     if request.method != "GET":
-        return HttpResponse({"message": f"Method Not Allowed {request.method}"})
+        return HttpResponse(
+            {"message": f"Method Not Allowed {request.method}"}
+        )
 
     response_data = sorted(
         list(
@@ -324,7 +347,9 @@ def get_subject_study_level_by_name(request):
 
 def get_subject_holding_type_by_study_level_name(request):
     if request.method != "GET":
-        return HttpResponse({"message": f"Method Not Allowed {request.method}"})
+        return HttpResponse(
+            {"message": f"Method Not Allowed {request.method}"}
+        )
     response_data = (
         sorted(
             list(
@@ -350,9 +375,12 @@ def get_subject_holding_type_by_study_level_name(request):
 
 def get_subject_groups_by_name_level_holding_cipher_direction(request):
     if request.method != "GET":
-        return HttpResponse({"message": f"Method Not Allowed {request.method}"})
+        return HttpResponse(
+            {"message": f"Method Not Allowed {request.method}"}
+        )
     combined = [
-        item.split(", ") for item in request.GET.getlist("ciphers_and_directions[]")
+        item.split(", ")
+        for item in request.GET.getlist("ciphers_and_directions[]")
     ]
 
     response_data = set()
@@ -385,7 +413,9 @@ def get_subject_groups_by_name_level_holding_cipher_direction(request):
 
 def get_subject_ciphers_and_directions_by_name_level_holding(request):
     if request.method != "GET":
-        return HttpResponse({"message": f"Method Not Allowed {request.method}"})
+        return HttpResponse(
+            {"message": f"Method Not Allowed {request.method}"}
+        )
 
     response_data = (
         sorted(
@@ -424,11 +454,16 @@ def create_subjects_from_db(study_level):
     for item in items:
         subjects[item[2]] = subjects.get(item[2], dict())
         subjects[item[2]][item[0]] = subjects[item[2]].get(item[0], dict())
-        subjects[item[2]][item[0]]["20" + item[1].split("-")[-1]] = subjects[item[2]][
-            item[0]
-        ].get("20" + item[1].split("-")[-1], list())
-        if item[1] not in subjects[item[2]][item[0]]["20" + item[1].split("-")[-1]]:
-            subjects[item[2]][item[0]]["20" + item[1].split("-")[-1]].append(item[1])
+        subjects[item[2]][item[0]]["20" + item[1].split("-")[-1]] = subjects[
+            item[2]
+        ][item[0]].get("20" + item[1].split("-")[-1], list())
+        if (
+            item[1]
+            not in subjects[item[2]][item[0]]["20" + item[1].split("-")[-1]]
+        ):
+            subjects[item[2]][item[0]]["20" + item[1].split("-")[-1]].append(
+                item[1]
+            )
         subjects[item[2]][item[0]]["20" + item[1].split("-")[-1]].sort()
 
         for key, value in subjects.items():
@@ -458,7 +493,9 @@ def magistrate(request):
 
 def investigate_subject(request, subject_name, group):
     info = {}
-    for item in Subject.objects.filter(name=subject_name, groups__name=group).all():
+    for item in Subject.objects.filter(
+        name=subject_name, groups__name=group
+    ).all():
         info[
             (
                 item.semester,
@@ -578,18 +615,22 @@ def get_person_pdf(request, id):
             ].get(subject.direction)
             is None
         ):
-            data["subjects"][subject.study_level][subject.name][subject.holding_type][
-                subject.direction
-            ] = {}
+            data["subjects"][subject.study_level][subject.name][
+                subject.holding_type
+            ][subject.direction] = {}
         if (
-            data["subjects"][subject.study_level][subject.name][subject.holding_type][
-                subject.direction
-            ].get(f"{subject.groups.name}|{subject.semester} сем")
+            data["subjects"][subject.study_level][subject.name][
+                subject.holding_type
+            ][subject.direction].get(
+                f"{subject.groups.name}|{subject.semester} сем"
+            )
             is None
         ):
-            data["subjects"][subject.study_level][subject.name][subject.holding_type][
-                subject.direction
-            ][f"{subject.groups.name}|{subject.semester} сем."] = (
+            data["subjects"][subject.study_level][subject.name][
+                subject.holding_type
+            ][subject.direction][
+                f"{subject.groups.name}|{subject.semester} сем."
+            ] = (
                 subject.total_time_for_group * subject.semester_duration
             )
 
